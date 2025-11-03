@@ -1,0 +1,117 @@
+/* Evo Calendar - Theme: Royal Navy */
+.royal-navy {
+    -webkit-box-shadow: 0 10px 50px -20px rgba(68, 84, 106, 0.65);
+            box-shadow: 0 10px 50px -20px rgba(68, 84, 106, 0.65);
+    border: 2px solid #44546a;
+}
+.royal-navy .calendar-sidebar {
+    background: #44546a;
+    background: -o-linear-gradient(left, #44546a, #44546a);
+    background: -webkit-gradient(linear, left top, right top, from(#44546a), to(#44546a));
+    background: linear-gradient(to right, #44546a, #44546a);
+    -webkit-box-shadow: 5px 0 18px -3px rgba(68, 84, 106, 0.65);
+            box-shadow: 5px 0 18px -3px rgba(68, 84, 106, 0.65);
+}
+.royal-navy.sidebar-hide .calendar-sidebar {
+    -webkit-box-shadow: none;
+            box-shadow: none;
+}
+.royal-navy .calendar-sidebar > .month-list::-webkit-scrollbar-thumb:hover {
+    background: #8e9cb1;
+}
+.royal-navy .calendar-sidebar > .month-list > .calendar-months > li:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+}
+.royal-navy .calendar-sidebar > .month-list > .calendar-months > li.active-month {
+    background-color: rgba(255, 255, 255, 0.40);
+}
+.royal-navy .calendar-sidebar > span#sidebarToggler,
+.royal-navy #eventListToggler {
+    background-color: #44546a;
+    -webkit-box-shadow: 0 0 18px -3px rgba(68, 84, 106, 0.65);
+            box-shadow: 0 0 18px -3px rgba(68, 84, 106, 0.65);
+}
+.royal-navy th[colspan="7"] {
+    position: relative;
+    font-size: 30px;
+    color: #44546a;
+}
+.royal-navy th[colspan="7"]::after {
+    content: '';
+    display: block;
+    width: 92%;
+    height: 1px;
+    margin: 0 auto;
+    background: #44546a;
+}
+.royal-navy tr.calendar-body .calendar-day .day:hover {
+    background-color: rgba(68, 84, 106, 0.32);
+    color: #44546a;
+}
+.royal-navy tr.calendar-body .calendar-day .day.calendar-today {
+    background: #44546a;  /* fallback for old browsers */
+    background: -o-linear-gradient(left, #44546a, #44546a);
+    background: -webkit-gradient(linear, left top, right top, from(#44546a), to(#44546a));
+    background: linear-gradient(to right, #44546a, #44546a); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+.royal-navy tr.calendar-body .calendar-day .day.calendar-active,
+.royal-navy tr.calendar-body .calendar-day .day.calendar-active:hover {
+    border-color: #44546a;
+}
+.royal-navy tr.calendar-body .calendar-day .day.calendar-today:hover {
+    color: #fff;
+}
+.royal-navy .calendar-events {
+    background-color: #fff;
+}
+.royal-navy .calendar-events::-webkit-scrollbar-thumb {
+    background: #44546a;
+    border-radius: 5px;
+}
+.royal-navy .calendar-events::-webkit-scrollbar-thumb:hover {
+    background: #44546a;
+}
+.royal-navy .event-container > .event-icon > div.event-bullet-event,
+.royal-navy .event-indicator > .type-bullet > div.type-event {
+    background-color: #44546a;
+}
+.royal-navy .event-list > .event-empty {
+    background-color: rgba(68, 84, 106, 0.15);
+    border: 1px solid #44546a;
+}
+.royal-navy .event-list > .event-empty > p {
+    color: #44546a;
+}
+.royal-navy .event-container > .event-info > p.event-title > span {
+    color: #44546a;
+    background-color: rgba(68, 84, 106, 0.15);
+    border: 1px solid #44546a;
+}
+@media only screen and (max-width: 768px) {
+    .royal-navy .calendar-inner::after {
+        background-color: rgba(68, 84, 106, 0.5);
+    }
+    .royal-navy .calendar-events {
+        -webkit-box-shadow: -5px 0 18px -3px rgba(68, 84, 106, 0.5);
+                box-shadow: -5px 0 18px -3px rgba(68, 84, 106, 0.5);
+    }
+    .royal-navy.event-hide .calendar-events {
+        -webkit-box-shadow: none;
+                box-shadow: none;
+    }
+}
+@media screen and (max-width: 425px) {
+    .royal-navy .calendar-sidebar > .calendar-year {
+        background: #44546a;
+        background: -o-linear-gradient(left, #44546a, #44546a);
+        background: -webkit-gradient(linear, left top, right top, from(#44546a), to(#44546a));
+        background: linear-gradient(to right, #44546a, #44546a);
+        -webkit-box-shadow: 0 5px 18px -3px rgba(68, 84, 106, 0.65);
+        box-shadow: 0 3px 8px -3px rgba(68, 84, 106, 0.65);
+    }
+    .royal-navy .calendar-sidebar > .month-list {
+        background: -o-linear-gradient(left, #44546a, #44546a);
+        background: -webkit-gradient(linear, left top, right top, from(#44546a), to(#44546a));
+        background: linear-gradient(to right, #44546a, #44546a);
+    }
+}
