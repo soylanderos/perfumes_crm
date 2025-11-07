@@ -2,20 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
 body {
-  min-height: 100vh;
-  background: linear-gradient(#F1F3FF, #CBD4FF);
+    min-height: 100vh;
+    background: linear-gradient(#F1F3FF, #CBD4FF);
 }
 
 .bg-gradient-primary {
-        background: linear-gradient(135deg, #4a6cf7, #6a11cb);
-    }
+    background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+}
 
 .sidebar {
     position: fixed;
@@ -24,7 +24,7 @@ body {
     z-index: 10000;
     width: 270px;
     height: 100vh;
-    background: #151A2D;
+    background: #2142c9;
     transition: all 0.4s ease;
 }
 
@@ -37,7 +37,7 @@ body {
 .sidebar.collapsed {
     width: 85px;
 }
-    
+
 
 .sidebar .sidebar-header {
     display: flex;
@@ -61,7 +61,7 @@ body {
     right: 20px;
     height: 35px;
     width: 35px;
-    color: #151A2D;
+    color: #0a31cb;
     border: none;
     cursor: pointer;
     display: flex;
@@ -126,7 +126,6 @@ body {
     padding: 11px 15px;
     align-items: center;
     text-decoration: none;
-    border: 1px solid #151A2D;
     transition: 0.4s ease;
 }
 
@@ -238,7 +237,7 @@ body {
         width: 42px;
         display: flex;
         color: #F1F4FF;
-        background: #151A2D;
+        background: #1c3fcf;
     }
 
     .sidebar.collapsed {
@@ -260,7 +259,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    background-color: #151A2D; /* similar a la segunda imagen */
+    background-color: #2142c9;
+    /* similar a la segunda imagen */
     color: #fff;
     height: 56px;
     padding: 0 16px;
@@ -269,7 +269,7 @@ body {
     top: 0;
     left: 0;
     z-index: 1100;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .mobile-navbar .menu-toggle-btn {
@@ -292,7 +292,8 @@ body {
 /* Ajuste del sidebar solo en móvil */
 @media (max-width: 768px) {
     .sidebar {
-        margin-top: 56px; /* para no tapar el navbar */
+        margin-top: 56px;
+        /* para no tapar el navbar */
     }
 }
 

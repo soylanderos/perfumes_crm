@@ -19,22 +19,13 @@ if (page === "login") {
 } else {
   // Carga de scripts comunes
   controller_scripts.push("shared/navigation/js/navigation_event_controller.js");
+  controller_scripts.push("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js");
   controller_scripts.push("modules/dashboard/event/dashboard_event_controller.js");
   controller_scripts.push("modules/clients/event/clients_event_controller.js");
+  controller_scripts.push("modules/products/event/products_event_controller.js");
+  controller_scripts.push("modules/skus/event/skus_event_controller.js");
   controller_scripts.push("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
 
-
-  // Carga de scripts específicos por rol
-  if (role === "admin") {
-    controller_scripts.push("modules/admin/event/admin_event_controller.js");
-  }
-
-  if (role === "PROJECT_MANAGER") {
-    //controller_scripts.push("modules/clients/js/clients_event_controller.js");
-    // no admin controller
-  }
-
-  // Puedes agregar más reglas por rol
 }
 
 const scripts = [...base_scripts, ...controller_scripts];

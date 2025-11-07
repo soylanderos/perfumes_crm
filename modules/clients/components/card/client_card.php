@@ -1,7 +1,23 @@
-<div class="card border-0 shadow-sm mb-3 client-card" data-customer-id="<?= (int)$c['customer_id'] ?>">
+<?php
+// prepara valores para data-*
+$next_due   = $c['next_due_date'] ?? '';                 // "YYYY-MM-DD" o vacío
+$balanceNum = (float)$c['balance'];                      // número
+$email      = $c['email'] ?? '';
+$status     = $c['status'] ?? 'pendiente';               // al_dia|pendiente|vencido
+?>
+<div
+    class="card border-0 shadow-sm mb-3 client-card"
+    data-customer-id="<?= (int)$c['customer_id'] ?>"
+    data-name="<?= htmlspecialchars(mb_strtolower($c['name'])) ?>"
+    data-phone="<?= htmlspecialchars($c['phone'] ?? '') ?>"
+    data-email="<?= htmlspecialchars(mb_strtolower($email)) ?>"
+    data-status="<?= htmlspecialchars($status) ?>"
+    data-balance="<?= number_format($balanceNum, 2, '.', '') ?>"
+    data-next-due="<?= htmlspecialchars($next_due) ?>"
+    data-index="<?= (int)$loop_index /* opcional para orden estable */ ?>">
     <div class="card-body">
         <div class="d-flex align-items-center gap-3 flex-wrap">
-            <img src="https://i.pravatar.cc/80?u=<?= urlencode($c['customer_id']) ?>" class="rounded-circle" style="width:44px;height:44px;object-fit:cover;" alt="">
+            <img src="https://ui-avatars.com/api/?background=0D8ABC&color=fff&name=<?= urlencode($c['name']) ?>" class="rounded-circle" style="width:44px;height:44px;object-fit:cover;" alt="">
             <div class="me-auto">
                 <div class="fw-semibold"><?= htmlspecialchars($c['name']) ?></div>
                 <div class="text-secondary small"><?= htmlspecialchars($c['phone'] ?: '—') ?></div>
@@ -19,18 +35,10 @@
 
             <div class="text-end">
                 <div class="fw-semibold">$<?= number_format((float)$c['balance'], 2) ?></div>
-                <?php
-                $badge = ['al_dia' => 'success', 'pendiente' => 'warning', 'vencido' => 'danger'][$c['status']] ?? 'secondary';
-                ?>
+                <?php $badge = ['al_dia' => 'success', 'pendiente' => 'warning', 'vencido' => 'danger'][$status] ?? 'secondary'; ?>
                 <span class="badge text-bg-<?= $badge ?> d-none d-md-inline">
-                    <?= ucfirst(str_replace('_', ' ', $c['status'])) ?>
+                    <?= ucfirst(str_replace('_', ' ', $status)) ?>
                 </span>
-            </div>
-
-            <div class="ms-auto ms-md-0">
-                <div class="btn-group">
-                    <a href="payments_new.php?customer=<?= (int)$c['customer_id'] ?>" class="btn btn-sm btn-primary">Registrar pago</a>
-                </div>
             </div>
         </div>
     </div>

@@ -1,13 +1,13 @@
 $(function () {
 
-    $(document).on('click', '[data-section]', function() {
-        if($('.modal').length){
+    $(document).on('click', '[data-section]', function () {
+        if ($('.modal').length) {
             $('.modal').modal('hide').remove();
             $('.modal-backdrop').remove();
         }
     });
 
-    $(document).on('hidden.bs.modal', '.modal', function() {
+    $(document).on('hidden.bs.modal', '.modal', function () {
         $('.modal-backdrop').remove();
     });
 
@@ -23,7 +23,7 @@ $(function () {
         // definir el controlador en base al ID del link
         const controller = $link.data('controller');
         //armar controller URL
-        const controllerUrl = 'modules/'  + controller + '/controller/' + controller +  '_controller.php';
+        const controllerUrl = 'modules/' + controller + '/controller/' + controller + '_controller.php';
 
         console.log('Controller URL:', controllerUrl);
 
@@ -34,12 +34,19 @@ $(function () {
             success: function (data) {
                 var response = JSON.parse(data);
                 if (response.status === 'success') {
-                    $('#app-content').html(response.view); 
+                    $('#app-content').html(response.view);
 
                     // ✅ Cerrar el sidebar
                     $('.sidebar').addClass('collapsed');
                     // ✅ Cambiar icono del botón menú si aplica
                     $('.menu-toggle-btn .material-symbols-rounded').text('menu');
+                    if (controller === 'dashboard') {
+                        window.initDashboardCharts('#app-content');
+                    }
+
+                    if (controller === 'clients') {
+                      initClientsEventController()
+                    }
 
                 } else {
                     Swal.fire({
@@ -139,4 +146,97 @@ $(function () {
 
 
 
+function initClientsEventController() {
+    const $container = $('.container-responsive-350');      // contenedor de cards
+    const $cards = $container.find('.client-card');      // colección inicial
 
+    /* ---------- Utils ---------- */
+    const deb = (fn, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn.apply(null, a), ms); }; };
+    const norm = s => (s || '').toString().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    const parseDate = s => { if (!s) return null; const d = new Date(s + 'T00:00:00'); return isNaN(d) ? null : d; };
+
+    /* ---------- Estado de filtros ---------- */
+    const state = { q: '', status: '', sort: 'nombre' };
+
+    /* ---------- Filtro de búsqueda ---------- */
+    function onSearch() {
+        state.q = norm($('#client_search').val());
+        applyFilters();
+    }
+    $('#client_search').on('input', deb(onSearch, 250));
+
+    /* ---------- Filtro por estado ---------- */
+    function onStatusChange() {
+        state.status = $('#client_status').val() || '';
+        applyFilters();
+    }
+    $('#client_status').on('change', onStatusChange);
+
+    /* ---------- Orden ---------- */
+    function onSortChange() {
+        state.sort = $('#client_sort').val() || 'nombre';
+        applyFilters();
+    }
+    $('#client_sort').on('change', onSortChange);
+
+    /* ---------- Aplicar filtros + ordenar ---------- */
+    function applyFilters() {
+        // 1) Mostrar/ocultar según búsqueda + estado
+        const q = state.q;
+        const st = state.status;
+
+        $cards.each(function () {
+            const $c = $(this);
+            const name = norm($c.data('name'));
+            const phone = norm($c.data('phone'));
+            const email = norm($c.data('email'));
+            const stat = ($c.data('status') || '').toString();
+
+            const passSearch = !q || name.includes(q) || phone.includes(q) || email.includes(q);
+            const passStatus = !st || stat === st;
+
+            $c.toggle(passSearch && passStatus);
+        });
+
+        // 2) Ordenar los visibles
+        sortVisible();
+    }
+
+    function sortVisible() {
+        const cards = $cards.filter(':visible').get();
+
+        cards.sort((a, b) => {
+            const $a = $(a), $b = $(b);
+            switch (state.sort) {
+                case 'saldo_desc': {
+                    const ba = parseFloat($a.data('balance')) || 0;
+                    const bb = parseFloat($b.data('balance')) || 0;
+                    if (bb !== ba) return bb - ba;
+                    break;
+                }
+                case 'prox_venc': {
+                    const da = parseDate($a.data('next-due'));
+                    const db = parseDate($b.data('next-due'));
+                    // nulos al final
+                    if (da && !db) return -1;
+                    if (!da && db) return 1;
+                    if (da && db && da.getTime() !== db.getTime()) return da - db;
+                    break;
+                }
+                default: { // nombre
+                    const na = norm($a.data('name'));
+                    const nb = norm($b.data('name'));
+                    if (na !== nb) return na < nb ? -1 : 1;
+                }
+            }
+            // desempate por data-index o por DOM original
+            const ia = parseInt($a.data('index')) || 0;
+            const ib = parseInt($b.data('index')) || 0;
+            return ia - ib;
+        });
+
+        // reinyectar en orden
+        $container.append(cards);
+    }
+}

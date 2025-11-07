@@ -15,11 +15,11 @@
         <div class="col-12 col-md-6">
             <div class="input-group">
                 <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                <input type="search" class="form-control" placeholder="Buscar por nombre, teléfono o email…">
+                <input id="client_search" type="search" class="form-control" placeholder="Buscar por nombre, teléfono o email…">
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <select class="form-select">
+            <select id="client_status" class="form-select">
                 <option value="">Todos los estados</option>
                 <option value="al_dia">Al día</option>
                 <option value="pendiente">Pendiente</option>
@@ -27,29 +27,27 @@
             </select>
         </div>
         <div class="col-6 col-md-3">
-            <select class="form-select">
-                <option value="">Ordenar por</option>
-                <option value="nombre">Nombre</option>
+            <select id="client_sort" class="form-select">
+                <option value="nombre">Ordenar por: Nombre</option>
                 <option value="saldo_desc">Saldo (desc)</option>
                 <option value="prox_venc">Próximo vencimiento</option>
             </select>
         </div>
-
-        <!-- Botón móvil -->
-        <div class="col-12 d-sm-none">
-            <a href="#" class="btn btn-primary w-100">+ Nuevo cliente</a>
-        </div>
     </div>
+
 
     <!-- Lista con cards -->
     <div class="vstack gap-3">
+        <div class="container-responsive-350">
+            <!-- Card 1 -->
+            <?php
+            $loop_index = 0;
+            foreach ($clients as $c):
+                $loop_index++;
+                include '../components/card/client_card.php';
+            endforeach;
 
-        <!-- Card 1 -->
-        <?php
-        foreach ($clients as $c):
-            include '../components/card/client_card.php';
-        endforeach;
-
-        ?>
+            ?>
+        </div>
     </div>
 </div>

@@ -24,10 +24,10 @@
                 </a>
             </li>
 
-            <li class="nav-item sidebar-item" data-controller="orders" id="fetch_orders">
+            <li class="nav-item sidebar-item" data-controller="skus" id="fetch_skus">
                 <a href="#" class="nav-link">
                     <span class="material-symbols-rounded">hand_package</span>
-                    <span class="nav-label">Ordenes</span>
+                    <span class="nav-label">Products</span>
                 </a>
             </li>
 

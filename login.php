@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>CRM Pay - Login</title>
 
     <!-- Tailwind CSS + DaisyUI -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,9 +24,9 @@
 
     <div class="login-container">
         <div class="login-header">
-            <h1>CRM</h1>
+            <h1>CRM Pay</h1>
             <p>
-                Welcome back! Please enter your credentials to log in.
+                Bienvenido de nuevo. Por favor, inicia sesión para continuar.
             </p>
         </div>
 
@@ -36,9 +36,9 @@
                     type="text"
                     class="form-input"
                     id="email"
-                    placeholder="Email address"
+                    placeholder="Username"
                     required>
-                <i class="input-icon fas fa-envelope"></i>
+                <i class="input-icon fas fa-user"></i>
                 <span class="error-message" id="emailError"></span>
             </div>
 
