@@ -1,9 +1,4 @@
 /* Página de pedidos */
-.orders-page {
-    background: radial-gradient(circle at top left, #fef3f2 0, #f7f8fb 40%, #ffffff 100%);
-    min-height: 100vh;
-}
-
 /* Search pill */
 .orders-search-wrapper {
     position: relative;

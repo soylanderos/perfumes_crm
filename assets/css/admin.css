@@ -1,6 +1,13 @@
 body {
     margin: 0;
-    background: radial-gradient(circle at top left, #f3f6ff 0, #f7f8fb 40%, #ffffff 100%);
+    background: #D3CCE3;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #E9E4F0, #D3CCE3);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #E9E4F0, #D3CCE3);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    height: 100vh;
+
 
     /* tu fondo oscuro general, si quieres */
 }
@@ -200,5 +207,10 @@ body {
 
 .container-responsive-470 {
     max-height: calc(100vh - 470px) !important;
+    overflow-y: auto !important;
+}
+
+.container-responsive-520 {
+    max-height: calc(100vh - 520px) !important;
     overflow-y: auto !important;
 }

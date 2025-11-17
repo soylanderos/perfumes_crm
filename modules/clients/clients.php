@@ -8,7 +8,7 @@
             <p class="text-muted mb-0">Administra tus clientes, saldos y actividad semanal.</p>
         </div>
 
-        <div class="ms-auto d-flex flex-wrap align-items-center gap-2">
+        <div class=" d-flex flex-wrap align-items-center gap-2">
             <!-- Filtro por estado -->
             <div class="dropdown">
                 <button class="btn btn-light btn-sm rounded-pill shadow-sm px-3 dropdown-toggle"

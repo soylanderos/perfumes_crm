@@ -61,10 +61,10 @@ $current_balance = isset($customer['balance']) ? (float)$customer['balance'] : 0
                         <div class="col-6">
                             <label class="form-label small mb-1">Método</label>
                             <select class="form-select form-select-sm" id="payment_method">
-                                <option value="Efectivo">Efectivo</option>
-                                <option value="Transferencia">Transferencia</option>
-                                <option value="Tarjeta">Tarjeta</option>
-                                <option value="Otro">Otro</option>
+                                <option value="cash">Efectivo</option>
+                                <option value="transfer">Transferencia</option>
+                                <option value="card">Tarjeta</option>
+                                <option value="other">Otro</option>
                             </select>
                         </div>
                         <div class="col-6">

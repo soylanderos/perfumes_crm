@@ -162,7 +162,7 @@ $(document).on('click', '#btn_orders_new_list, #btn_orders_new_list_empty', func
 // Agregar otra fila de producto
 $(document).on('click', '#btn_add_order_item', function (e) {
     e.preventDefault();
-    $('#new_order_items_container').append(renderNewOrderItemRow());
+    $('#new_order_items_container').prepend(renderNewOrderItemRow());
 });
 
 

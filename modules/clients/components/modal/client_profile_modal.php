@@ -19,6 +19,20 @@ $created_at = isset($customer['created_at']) ? date('d/m/Y', strtotime($customer
 $last_sale_pretty    = $last_sale_date ? date('d/m/Y', strtotime($last_sale_date)) : null;
 $last_payment_pretty = $last_payment_date ? date('d/m/Y', strtotime($last_payment_date)) : null;
 
+// Tomamos la última compra y el último pago de los arrays que ya tienes
+$last_sale_row    = !empty($recent_sales)    ? $recent_sales[0]    : null;
+$last_payment_row = !empty($recent_payments) ? $recent_payments[0] : null;
+
+$last_sale_amount    = $last_sale_row['total_amount']    ?? null;
+$last_sale_items     = $last_sale_row['items_count']     ?? null;
+$last_sale_date_full = $last_sale_row['sale_date']       ?? null;
+
+$last_payment_amount = $last_payment_row['amount']       ?? null;
+$last_payment_method = $last_payment_row['method']       ?? null;
+$last_payment_date_full = $last_payment_row['payment_date'] ?? null;
+?>
+
+
 $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
 ?>
 <div class="modal fade client-profile-modal" id="client_profile_modal"
@@ -81,11 +95,15 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                             <span class="badge rounded-pill bg-light text-dark mb-2">
                                 <?= $customer_status === 'active' ? 'Activo' : 'Inactivo' ?>
                             </span>
-                            <div class="small text-white-50">Saldo actual</div>
-                            <div class="h5 mb-0 fw-semibold <?= $balance_class ?>">
-                                <?= $balance > 0 ? '$' . number_format($balance, 2) : 'En regla' ?>
+
+                            <div class="client-profile-balance-box <?= $balance > 0 ? 'negative' : 'positive' ?>">
+                                <div class="small mb-1">Saldo actual</div>
+                                <div class="h5 mb-0 fw-semibold client-profile-balance-amount">
+                                    <?= $balance > 0 ? '$' . number_format($balance, 2) : 'En regla' ?>
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Tabs simples -->
@@ -149,75 +167,110 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                             </div>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="row g-3 mb-3">
+                            <!-- Última compra -->
                             <div class="col-12 col-lg-6">
-                                <div class="client-profile-card">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h3 class="h6 mb-0">Compras recientes</h3>
+                                <div class="client-overview-highlight client-overview-sale <?= $last_sale_row ? '' : 'client-overview-empty' ?>">
+
+                                    <div class="coh-header">
+                                        <span class="coh-label">Última compra</span>
+                                        <?php if ($last_sale_row): ?>
+                                            <span class="coh-pill">
+                                                <?= (int)$total_sales ?> compras totales
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
-                                    <?php if (!empty($recent_sales)): ?>
-                                        <ul class="list-unstyled mb-0 client-profile-list">
-                                            <?php foreach ($recent_sales as $sale): ?>
-                                                <li class="client-profile-list-item">
-                                                    <div>
-                                                        <div class="fw-semibold small">
-                                                            Compra #<?= (int)$sale['id'] ?>
-                                                        </div>
-                                                        <div class="small text-muted">
-                                                            <?= date('d/m/Y', strtotime($sale['sale_date'])) ?>
-                                                            &nbsp;&bull;&nbsp;
-                                                            <?= (int)$sale['items_count'] ?> productos
-                                                        </div>
-                                                    </div>
-                                                    <div class="fw-semibold small">
-                                                        $<?= number_format($sale['total_amount'], 2) ?>
-                                                    </div>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
+
+                                    <?php if ($last_sale_row): ?>
+                                        <div class="coh-main">
+                                            <div class="coh-amount">
+                                                $<?= number_format($last_sale_amount, 2) ?>
+                                            </div>
+                                            <div class="coh-meta text-end">
+                                                <div class="coh-meta-title">Realizada el</div>
+                                                <div class="coh-meta-value">
+                                                    <?= date('d/m/Y', strtotime($last_sale_date_full)) ?>
+                                                </div>
+                                                <div class="coh-meta-sub">
+                                                    <?= (int)$last_sale_items ?> productos
+                                                </div>
+                                            </div>
+                                        </div>
                                     <?php else: ?>
-                                        <p class="small text-muted mb-0">
-                                            Este cliente aún no tiene compras registradas.
-                                        </p>
+                                        <div class="coh-empty">
+                                            <p class="mb-2">Este cliente aún no tiene compras registradas.</p>
+                                            <button type="button"
+                                                class="btn btn-light btn-sm rounded-pill clients-btn-add-sale"
+                                                data-customer-id="<?= (int)$customer['id'] ?>">
+                                                Registrar primera compra
+                                            </button>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
+                            <!-- Último abono -->
                             <div class="col-12 col-lg-6">
-                                <div class="client-profile-card">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h3 class="h6 mb-0">Pagos recientes</h3>
+                                <div class="client-overview-highlight client-overview-payment <?= $last_payment_row ? '' : 'client-overview-empty' ?>">
+
+                                    <div class="coh-header">
+                                        <span class="coh-label">Último abono</span>
+                                        <?php if ($last_payment_row): ?>
+                                            <span class="coh-pill">
+                                                Total abonado: $<?= number_format($total_paid, 2) ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
-                                    <?php if (!empty($recent_payments)): ?>
-                                        <ul class="list-unstyled mb-0 client-profile-list">
-                                            <?php foreach ($recent_payments as $pay): ?>
-                                                <li class="client-profile-list-item">
-                                                    <div>
-                                                        <div class="fw-semibold small">
-                                                            <?= date('d/m/Y', strtotime($pay['payment_date'])) ?>
-                                                        </div>
-                                                        <div class="small text-muted">
-                                                            Método: <?= htmlspecialchars($pay['method']) ?>
-                                                            <?php if (!empty($pay['notes'])): ?>
-                                                                &nbsp;&bull;&nbsp; <?= htmlspecialchars($pay['notes']) ?>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="fw-semibold small text-success">
-                                                        +$<?= number_format($pay['amount'], 2) ?>
-                                                    </div>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
+
+                                    <?php if ($last_payment_row): ?>
+                                        <?php
+                                        switch ($last_payment_method) {
+                                            case 'cash':
+                                                $method_label = 'Efectivo';
+                                                break;
+                                            case 'transfer':
+                                                $method_label = 'Transferencia';
+                                                break;
+                                            case 'card':
+                                                $method_label = 'Tarjeta';
+                                                break;
+                                            case 'other':
+                                                $method_label = 'Otro';
+                                                break;
+                                            default:
+                                                $method_label = htmlspecialchars($last_payment_method);
+                                        }
+                                        ?>
+                                        <div class="coh-main">
+                                            <div class="coh-amount text-light">
+                                                +$<?= number_format($last_payment_amount, 2) ?>
+                                            </div>
+                                            <div class="coh-meta text-end">
+                                                <div class="coh-meta-title">Pagado el</div>
+                                                <div class="coh-meta-value">
+                                                    <?= date('d/m/Y', strtotime($last_payment_date_full)) ?>
+                                                </div>
+                                                <div class="coh-meta-sub">
+                                                    Método: <?= $method_label ?>
+                                                </div>
+                                            </div>
+                                        </div>
                                     <?php else: ?>
-                                        <p class="small text-muted mb-0">
-                                            Aún no hay pagos registrados para este cliente.
-                                        </p>
+                                        <div class="coh-empty">
+                                            <p class="mb-2">Aún no hay pagos registrados para este cliente.</p>
+                                            <button type="button"
+                                                class="btn btn-light btn-sm rounded-pill clients-btn-add-payment"
+                                                data-customer-id="<?= (int)$customer['id'] ?>">
+                                                Registrar primer pago
+                                            </button>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
                         </div>
+
                     </section>
+
                     <!-- TAB: COMPRAS -->
                     <section class="client-profile-tab-pane" data-tab-content="sales">
                         <div class="client-profile-card">
@@ -233,7 +286,7 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                             </div>
 
                             <?php if (!empty($recent_sales)): ?>
-                                <ul class="list-unstyled mb-0 client-profile-list">
+                                <ul class="list-unstyled mb-0 client-profile-list container-responsive-350">
                                     <?php foreach ($recent_sales as $sale): ?>
                                         <li class="client-profile-list-item">
                                             <div>
@@ -280,7 +333,7 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                             </div>
 
                             <?php if (!empty($recent_payments)): ?>
-                                <ul class="list-unstyled mb-0 client-profile-list">
+                                <ul class="list-unstyled mb-0 client-profile-list container-responsive-350">
                                     <?php foreach ($recent_payments as $pay): ?>
                                         <li class="client-profile-list-item">
                                             <div>
@@ -288,7 +341,25 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                                                     <?= date('d/m/Y', strtotime($pay['payment_date'])) ?>
                                                 </div>
                                                 <div class="small text-muted">
-                                                    Método: <?= htmlspecialchars($pay['method']) ?>
+                                                    <?php
+                                                    switch ($pay['method']) {
+                                                        case 'cash':
+                                                            $method_label = 'Efectivo';
+                                                            break;
+                                                        case 'transfer':
+                                                            $method_label = 'Transferencia';
+                                                            break;
+                                                        case 'card':
+                                                            $method_label = 'Tarjeta';
+                                                            break;
+                                                        case 'other':
+                                                            $method_label = 'Otro';
+                                                            break;
+                                                        default:
+                                                            $method_label = htmlspecialchars($pay['method']);
+                                                    }
+                                                    ?>
+                                                    Método: <?= htmlspecialchars($method_label) ?>
                                                     <?php if (!empty($pay['notes'])): ?>
                                                         &nbsp;&bull;&nbsp; <?= htmlspecialchars($pay['notes']) ?>
                                                     <?php endif; ?>
@@ -323,13 +394,12 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                         </div>
                     </section>
 
-
                     <!-- TAB: MOVIMIENTOS -->
                     <section class="client-profile-tab-pane" data-tab-content="movements">
                         <div class="client-profile-card">
                             <h3 class="h6 mb-3">Historial de movimientos</h3>
                             <?php if (!empty($movements)): ?>
-                                <ul class="list-unstyled mb-0 client-profile-list">
+                                <ul class="list-unstyled mb-0 client-profile-list container-responsive-350">
                                     <?php foreach ($movements as $m):
                                         $is_charge  = $m['type'] === 'charge';
                                         $is_payment = $m['type'] === 'payment';
@@ -348,7 +418,23 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                                         } elseif ($is_payment && !empty($m['related_payment_id'])) {
                                             $origin = 'Pago #' . (int)$m['related_payment_id'];
                                             if (!empty($m['payment_method'])) {
-                                                $origin .= ' · ' . htmlspecialchars($m['payment_method']);
+                                                switch ($pay['method']) {
+                                                        case 'cash':
+                                                            $method_label = 'Efectivo';
+                                                            break;
+                                                        case 'transfer':
+                                                            $method_label = 'Transferencia';
+                                                            break;
+                                                        case 'card':
+                                                            $method_label = 'Tarjeta';
+                                                            break;
+                                                        case 'other':
+                                                            $method_label = 'Otro';
+                                                            break;
+                                                        default:
+                                                            $method_label = htmlspecialchars($pay['method']);
+                                                    }
+                                                $origin .= ' · ' . htmlspecialchars($method_label);
                                             }
                                         }
                                     ?>
@@ -386,7 +472,6 @@ $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
                         </div>
                     </section>
                 </div>
-
             </div>
         </div>
     </div>

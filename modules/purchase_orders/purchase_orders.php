@@ -10,7 +10,7 @@
             </p>
         </div>
 
-        <div class="ms-auto d-flex flex-wrap align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             <!-- Filtro por estado -->
             <div class="dropdown">
                 <button class="btn btn-light btn-sm rounded-pill shadow-sm px-3 dropdown-toggle"
@@ -178,18 +178,18 @@
         <div class="modal-content border-0 rounded-4">
 
             <form id="new_purchase_order_form" autocomplete="off">
-                <div class="modal-header border-0 pb-0 px-3 px-md-4 pt-3 pt-md-4">
+                <div class="modal-header border-0 pb-0 px-3 px-md-4 pt-3 pt-md-4 d-flex align-items-center gap-2 justify-content-between w-100">
+                    <h5 class="mb-0 fw-semibold">
+                        Nueva lista de pedidos
+                    </h5>
                     <div class="d-flex align-items-center gap-2">
                         <button type="button"
                             class="btn btn-light btn-sm rounded-pill"
                             data-bs-dismiss="modal">
-                            <i class="bi bi-chevron-left me-1"></i> Cerrar
+                            Cerrar
                         </button>
                     </div>
-                    <h5 class="mb-0 fw-semibold">
-                        Nueva lista de pedidos
-                    </h5>
-                    </div>
+                </div>
 
                 <div class="modal-body px-3 px-md-4 pb-3 pb-md-4 pt-2">
                     <!-- Info básica de la lista -->
@@ -232,7 +232,7 @@
                             </button>
                         </div>
 
-                        <div id="new_order_items_container">
+                        <div id="new_order_items_container" class="container-responsive-520">
                             <!-- Aquí se inyectan las filas con JS (renderNewOrderItemRow) -->
                         </div>
 
