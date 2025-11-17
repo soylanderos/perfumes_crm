@@ -50,10 +50,10 @@ $paidPct = ($kpi['total_sales'] > 0) ? ($kpi['total_paid'] / $kpi['total_sales']
 	}
 </style>
 
-<div id="dashboard_root" class="container py-3">
+<div id="dashboard_root" class="container py-4">
 
 	<!-- KPIs (más compactos) -->
-	<div class="row g-2 mb-2">
+	<div class="row g-2 mb-2 mt-2">
 		<div class="col-6 col-lg-2">
 			<div class="card shadow-sm border-0 kpi">
 				<div class="card-body">

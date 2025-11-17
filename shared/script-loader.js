@@ -9,7 +9,9 @@ const base_scripts = [
   "utilities/fontawesome/all.min.js",
   "utilities/evo-calendar/js/evo-calendar.js",
   "utilities/Chart.js/chart.umd.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
 ];
+
 
 const controller_scripts = [];
 
@@ -22,9 +24,7 @@ if (page === "login") {
   controller_scripts.push("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js");
   controller_scripts.push("modules/dashboard/event/dashboard_event_controller.js");
   controller_scripts.push("modules/clients/event/clients_event_controller.js");
-  controller_scripts.push("modules/products/event/products_event_controller.js");
-  controller_scripts.push("modules/skus/event/skus_event_controller.js");
-  controller_scripts.push("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
+  controller_scripts.push("modules/purchase_orders/event/purchase_orders_event_controller.js");
 
 }
 

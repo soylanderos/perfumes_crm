@@ -1,310 +1,204 @@
-/* Importing Google Fonts - Poppins */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-}
-
 body {
+    margin: 0;
+    background: radial-gradient(circle at top left, #f3f6ff 0, #f7f8fb 40%, #ffffff 100%);
+
+    /* tu fondo oscuro general, si quieres */
+}
+
+.app-shell {
     min-height: 100vh;
-    background: linear-gradient(#F1F3FF, #CBD4FF);
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #4a6cf7, #6a11cb);
-}
-
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10000;
-    width: 270px;
-    height: 100vh;
-    background: #2142c9;
-    transition: all 0.4s ease;
-}
-
-/*
-.sidebar.collapsed:hover {
-    width: 270px;
-}
-*/
-
-.sidebar.collapsed {
-    width: 85px;
-}
-
-
-.sidebar .sidebar-header {
     display: flex;
-    position: relative;
-    padding: 25px 20px;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.sidebar-header .header-logo img {
-    width: 46px;
-    height: 46px;
-    display: block;
-    object-fit: contain;
-    border-radius: 50%;
-}
-
-.sidebar-header .sidebar-toggler,
-.sidebar-menu-button {
-    position: absolute;
-    right: 20px;
-    height: 35px;
-    width: 35px;
-    color: #0a31cb;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    background: #EEF2FF;
-    align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    transition: 0.4s ease;
+    align-items: flex-start;
+    padding: 1.5rem 0 5rem;
+    /* espacio abajo para la bottom nav */
 }
 
-.sidebar.collapsed .sidebar-header .sidebar-toggler {
-    transform: translate(-4px, 65px);
-}
-
-.sidebar-header .sidebar-toggler span,
-.sidebar-menu-button span {
-    font-size: 1.75rem;
-    transition: 0.4s ease;
-}
-
-.sidebar.collapsed .sidebar-header .sidebar-toggler span {
-    transform: rotate(180deg);
-}
-
-.sidebar-header .sidebar-toggler:hover {
-    background: #d9e1fd;
-}
-
-.sidebar-nav .nav-list {
-    list-style: none;
-    display: flex;
-    gap: 4px;
-    padding: 0 15px;
-    flex-direction: column;
-    transform: translateY(15px);
-    transition: 0.4s ease;
-}
-
-.sidebar .sidebar-nav .primary-nav {
-    overflow-y: auto;
-    scrollbar-width: thin;
-    padding-bottom: 20px;
-    height: calc(100vh - 227px);
-    scrollbar-color: transparent transparent;
-}
-
-.sidebar .sidebar-nav .primary-nav:hover {
-    scrollbar-color: #EEF2FF transparent;
-}
-
-.sidebar.collapsed .sidebar-nav .primary-nav {
-    overflow: unset;
-    transform: translateY(65px);
-}
-
-.sidebar-nav .nav-item .nav-link {
-    color: #fff;
-    display: flex;
-    gap: 12px;
-    white-space: nowrap;
-    border-radius: 8px;
-    padding: 11px 15px;
-    align-items: center;
-    text-decoration: none;
-    transition: 0.4s ease;
-}
-
-.sidebar-nav .nav-item:is(:hover, .open)>.nav-link:not(.dropdown-title) {
-    color: #151A2D;
-    background: #EEF2FF;
-}
-
-.sidebar .nav-link .nav-label {
-    transition: opacity 0.3s ease;
-}
-
-.sidebar.collapsed .nav-link :where(.nav-label, .dropdown-icon) {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.sidebar.collapsed .nav-link .dropdown-icon {
-    transition: opacity 0.3s 0s ease;
-}
-
-
-.sidebar-nav .nav-item {
-    position: relative;
-}
-
-/* Dropdown Stylings */
-.sidebar-nav .dropdown-container .dropdown-icon {
-    margin: 0 -4px 0 auto;
-    transition: transform 0.4s ease, opacity 0.3s 0.2s ease;
-}
-
-.sidebar-nav .dropdown-container.open .dropdown-icon {
-    transform: rotate(180deg);
-}
-
-.sidebar-nav .dropdown-menu {
-    height: 0;
-    overflow-y: hidden;
-    list-style: none;
-    padding-left: 15px;
-    transition: height 0.4s ease;
-}
-
-.sidebar.collapsed .dropdown-menu {
-    position: absolute;
-    top: -10px;
-    left: 100%;
-    opacity: 0;
-    height: auto !important;
-    padding-right: 10px;
-    overflow-y: unset;
-    pointer-events: none;
-    border-radius: 0 10px 10px 0;
-    background: #151A2D;
-    transition: 0s;
-}
-
-.sidebar.collapsed .dropdown-menu:has(.dropdown-link) {
-    padding: 7px 10px 7px 24px;
-}
-
-.sidebar.sidebar.collapsed .nav-item:hover>.dropdown-menu {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(12px);
-    transition: all 0.4s ease;
-}
-
-.sidebar.sidebar.collapsed .nav-item:hover>.dropdown-menu:has(.dropdown-link) {
-    transform: translateY(10px);
-}
-
-.dropdown-menu .nav-item .nav-link {
-    color: #F1F4FF;
-    padding: 9px 15px;
-}
-
-.sidebar.collapsed .dropdown-menu .nav-link {
-    padding: 7px 15px;
-}
-
-.dropdown-menu .nav-item .nav-link.dropdown-title {
-    display: none;
-    color: #fff;
-    padding: 9px 15px;
-}
-
-.dropdown-menu:has(.dropdown-link) .nav-item .dropdown-title {
-    font-weight: 500;
-    padding: 7px 15px;
-}
-
-.sidebar.collapsed .dropdown-menu .nav-item .dropdown-title {
-    display: block;
-}
-
-.sidebar-menu-button {
-    display: none;
-}
-
-/* Responsive media query code for small screens */
-@media (max-width: 768px) {
-    .sidebar-menu-button {
-        position: fixed;
-        left: 20px;
-        top: 20px;
-        height: 40px;
-        width: 42px;
-        display: flex;
-        color: #F1F4FF;
-        background: #1c3fcf;
-    }
-
-    .sidebar.collapsed {
-        width: 270px;
-        left: -270px;
-    }
-
-    .sidebar.collapsed .sidebar-header .sidebar-toggler {
-        transform: none;
-    }
-
-    .sidebar.collapsed .sidebar-nav .primary-nav {
-        transform: translateY(15px);
-    }
-}
-
-/* Barra superior para móviles */
-.mobile-navbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    background-color: #2142c9;
-    /* similar a la segunda imagen */
-    color: #fff;
-    height: 56px;
-    padding: 0 16px;
+.main-container {
     width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1100;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.5rem 1.25rem 0rem;
 }
 
-.mobile-navbar .menu-toggle-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 28px;
+/* Contenedor general de la bottom nav */
+.floating-bottom-nav {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 999;
+    width: 100%;
+    pointer-events: none;
+    /* la nav interna sí recibe clicks */
+}
+
+/* Lista */
+.floating-nav-list {
+    margin: 0 auto;
+    padding: 0.4rem 0.6rem;
+    list-style: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.4rem;
+    max-width: 540px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 999px;
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.14),
+        0 0 0 1px rgba(148, 163, 184, 0.2);
+    backdrop-filter: blur(16px);
+    pointer-events: auto;
+}
+
+/* Cada item */
+.floating-nav-item {
+    display: flex;
+}
+
+/* Botones */
+.floating-nav-btn {
+    border: none;
+    outline: none;
+    background: transparent;
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     cursor: pointer;
+    transition:
+        background 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.12s ease,
+        color 0.18s ease;
+    color: #6b7280;
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
-.mobile-navbar-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-left: 12px;
+/* Icon wrapper */
+.floating-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    transition: background 0.18s ease, transform 0.12s ease;
 }
 
-/* Ajuste del sidebar solo en móvil */
-@media (max-width: 768px) {
-    .sidebar {
-        margin-top: 56px;
-        /* para no tapar el navbar */
+/* Icono */
+.floating-nav-btn i {
+    font-size: 1rem;
+}
+
+/* Label */
+.floating-label {
+    display: none;
+    /* en mobile es más minimal */
+}
+
+/* Estado hover */
+.floating-nav-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Estado activo */
+.floating-nav-btn.active {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.45);
+}
+
+.floating-nav-btn.active .floating-icon-wrap {
+    background: rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
+}
+
+/* Logout botón más simple */
+.floating-nav-btn-logout {
+    background: rgba(248, 250, 252, 0.9);
+    color: #ef4444;
+    padding: 0.45rem;
+}
+
+.floating-nav-btn-logout .floating-icon-wrap {
+    width: 32px;
+    height: 32px;
+}
+
+/* Empujar logout un poquito a la derecha */
+.floating-nav-item-right {
+    margin-left: 0.4rem;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+/* Mobile first: full width-ish, labels ocultas */
+@media (max-width: 767.98px) {
+    .floating-nav-list {
+        max-width: 100%;
+        margin-inline: 0.75rem;
+        padding-inline: 0.4rem;
+        justify-content: space-between;
     }
-}
 
+    .floating-nav-btn {
+        padding-inline: 0.4rem;
+    }
 
-/* Ocultar el navbar en desktop */
-@media(min-width: 992px) {
-    .mobile-navbar {
+    .floating-label {
         display: none;
     }
 }
 
-.modal {
-    z-index: 100000000;
+/* Tablet & Desktop: más ancho, mostramos labels tipo SaaS */
+@media (min-width: 768px) {
+    .floating-nav-list {
+        max-width: 540px;
+    }
+
+    .floating-nav-btn {
+        padding-inline: 0.8rem;
+    }
+
+    .floating-label {
+        display: inline-block;
+    }
+}
+
+/* Desktop grande: subimos un poco la barra para no quedar pegados al borde */
+@media (min-width: 1200px) {
+    .floating-bottom-nav {
+        bottom: 24px;
+    }
+}
+
+.container-responsive-320 {
+    max-height: calc(100vh - 320px) !important;
+    overflow-y: auto !important;
+}
+
+.container-responsive-300 {
+    max-height: calc(100vh - 300px) !important;
+    overflow-y: auto !important;
+}
+
+.container-responsive-250 {
+    max-height: calc(100vh - 250px) !important;
+    overflow-y: auto !important;
+}
+
+.container-responsive-350 {
+    max-height: calc(100vh - 350px) !important;
+    overflow-y: auto !important;
+}
+
+.container-responsive-470 {
+    max-height: calc(100vh - 470px) !important;
+    overflow-y: auto !important;
 }

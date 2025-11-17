@@ -37,432 +37,746 @@ function errorMessage(message) {
     console.error("Error:", message);
 }
 
-$(document).on('click', '#btn_add_new_client', function (e) {
+function loadClients() {
+    $.ajax({
+        url: clients_controller,
+        method: 'POST',
+        dataType: 'json',
+        data: { user_request: 'fetch_clients' },
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#app_content').html(resp.view);
+                initClientsModule();
+            } else {
+                console.error(resp.message);
+                // aquí puedes mostrar toast / alerta
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+        }
+    });
+}
+
+
+$(document).on('custom:nav', '#fetch_clients', function () {
+    loadClients();
+});
+
+
+// Abrir perfil de cliente
+$(document).on('click', '.clients-btn-view', function (e) {
     e.preventDefault();
-    let user_request = 'fetch_add_client_form';
+    const customerId = $(this).data('customer-id');
+    if (!customerId) return;
 
     $.ajax({
         url: clients_controller,
-        type: 'POST',
-        data: { user_request: user_request },
-        beforeSend: function () {
-            show_loader();
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'fetch_client_profile',
+            customer_id: customerId
         },
-        success: function (response) {
-            response = JSON.parse(response);
-            if (response.status === 'success') {
-                $('#modal_container').html(response.view);
-                $('#client_modal').modal('show');
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                $('#client_profile_modal').modal('show');
             } else {
-                errorMessage(response.message);
+                console.error(resp.message);
             }
-            hide_loader();
         },
         error: function (xhr, status, error) {
-            hide_loader();
-            console.error("Error:", error);
+            console.error('AJAX error:', error);
         }
     });
 });
 
-$(document).on('submit', '#form_customer', function (e) {
-    e.preventDefault();
-    let form = $(this)[0];
-    let formData = new FormData(form);
+// Cerrar modal perfil cliente
+$(document).on('click', '.client-profile-close, .client-profile-backdrop', function () {
+    $('#modal_container').empty();
+});
 
-    //Validation form
-    if (!form.checkValidity()) {
-        e.stopPropagation();
-        form.classList.add('was-validated');
+$(document).on('click', '.client-profile-tab', function () {
+    const tab = $(this).data('tab');
+
+    $('.client-profile-tab').removeClass('active');
+    $(this).addClass('active');
+
+    $('.client-profile-tab-pane').removeClass('active');
+    $(`.client-profile-tab-pane[data-tab-content="${tab}"]`).addClass('active');
+});
+
+// Abrir modal de nueva compra
+$(document).on('click', '.clients-btn-add-sale, .client-profile-add-sale', function (e) {
+    e.preventDefault();
+    const customerId = $(this).data('customer-id');
+    if (!customerId) return;
+
+    $.ajax({
+        url: clients_controller,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'fetch_new_sale_modal',
+            customer_id: customerId
+        },
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                const modalEl = document.getElementById('client_new_sale_modal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            } else {
+                console.error(resp.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+        }
+    });
+});
+
+// Registrar compra
+$(document).on('submit', '#client_new_sale_form', function (e) {
+    e.preventDefault();
+
+    const customerId = parseInt($('#sale_customer_id').val(), 10);
+    const saleDate = $('#sale_date').val();
+    const notes = $('#sale_notes').val().trim();
+
+    if (!customerId) return;
+
+    const items = [];
+    let invalid = false;
+
+    $('#client_new_sale_form .sale-item-row').each(function () {
+        const $row = $(this);
+        const checked = $row.find('.sale-item-select').is(':checked');
+        if (!checked) return;
+
+        const poiId = $row.data('order-item-id');
+        const max = parseInt($row.data('max-qty'), 10) || 0;
+        let qty = parseInt($row.find('.sale-item-qty').val(), 10) || 0;
+        const price = parseFloat($row.find('.sale-item-price').val()) || 0;
+
+        if (!poiId || qty <= 0 || price <= 0) {
+            invalid = true;
+            return;
+        }
+
+        if (max > 0 && qty > max) {
+            qty = max; // clamp por si acaso
+            $row.find('.sale-item-qty').val(qty);
+        }
+
+        items.push({
+            purchase_order_item_id: poiId,
+            quantity: qty,
+            unit_price: price
+        });
+    });
+
+    if (invalid) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Revisa cantidad y precio de los productos seleccionados.' });
+        return;
+    }
+
+    if (items.length === 0) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Selecciona al menos un producto y asigna precio.' });
         return;
     }
 
     $.ajax({
         url: clients_controller,
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        beforeSend: function () {
-            show_loader();
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'create_client_sale',
+            customer_id: customerId,
+            sale_date: saleDate,
+            notes: notes,
+            items: JSON.stringify(items)
         },
-        success: function (response) {
-            response = JSON.parse(response);
-            if (response.status === 'success') {
-                $('#client_modal').modal('hide');
+        success: function (resp) {
+            if (resp.status === 'success') {
+                // Cerrar modal
+                const modalEl = document.getElementById('client_new_sale_modal');
+                if (modalEl) {
+                    const instance = bootstrap.Modal.getInstance(modalEl);
+                    if (instance) instance.hide();
+                }
+
+                // Recargar el perfil del cliente para ver saldo, compras, movimientos actualizados
+                reloadClientProfile(customerId);
             } else {
-                errorMessage(response.message);
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo registrar la compra.' });
             }
-            hide_loader();
         },
         error: function (xhr, status, error) {
-            hide_loader();
-            console.error("Error:", error);
+            console.error('AJAX error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al registrar la compra.' });
         }
     });
 });
 
-$(document).on('hidden.bs.modal', '#client_modal', function () {
-    $('#modal_container').empty();
-    $('.modal-backdrop').remove();
-});
-
-$(document).on('click', '.client-card', function (e) {
-    e.preventDefault();
-    let customer_id = $(this).data('customer-id');
-    let user_request = 'fetch_client_details';
+function reloadClientProfile(customerId) {
+    if (!customerId) return;
 
     $.ajax({
         url: clients_controller,
-        type: 'POST',
-        data: { user_request: user_request, customer_id: customer_id },
-        beforeSend: function () {
-            show_loader();
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'fetch_client_profile',
+            customer_id: customerId
         },
-        success: function (response) {
-            response = JSON.parse(response);
-            if (response.status === 'success') {
-                $('#modal_container').html(response.view);
-                $('#client_details_modal').modal('show');
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                const modalEl = document.getElementById('client_profile_modal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
             } else {
-                errorMessage(response.message);
+                console.error(resp.message);
             }
-            hide_loader();
         },
         error: function (xhr, status, error) {
-            hide_loader();
-            console.error("Error:", error);
+            console.error('AJAX error:', error);
         }
-    });
-});
-
-$(document).on('hidden.bs.modal', '#client_details_modal', function () {
-    $('#modal_container').empty();
-    $('.modal-backdrop').remove();
-});
-
-$(document).on('click', '#btn_edit_client', function (e) {
-    e.preventDefault();
-
-    //Hide Modal Details
-    $('#client_details_modal').modal('hide');
-
-    let customer_id = $(this).data('customer-id');
-    let user_request = 'fetch_client_form';
-
-    $.ajax({
-        url: clients_controller,
-        type: 'POST',
-        data: { user_request: user_request, customer_id: customer_id },
-        beforeSend: function () {
-            show_loader();
-        },
-        success: function (response) {
-            response = JSON.parse(response);
-            if (response.status === 'success') {
-                $('#modal_container').html(response.view);
-                $('#client_modal').modal('show');
-            } else {
-                errorMessage(response.message);
-            }
-            hide_loader();
-        },
-        error: function (xhr, status, error) {
-            hide_loader();
-            console.error("Error:", error);
-        }
-    });
-});
-
-$(document).on('hidden.bs.modal', '#client_modal', function () {
-    $('#modal_container').empty();
-    $('.modal-backdrop').remove();
-});
-
-$(document).on('click', '#tab-orders', function (e) {
-    e.preventDefault();
-    let customer_id = $(this).data('customer-id');
-    let user_request = 'fetch_client_orders';
-
-    $.ajax({
-        url: clients_controller,
-        type: 'POST',
-        data: { user_request: user_request, customer_id: customer_id },
-        beforeSend: function () {
-            show_loader();
-        },
-        success: function (response) {
-            response = JSON.parse(response);
-            if (response.status === 'success') {
-                $('#pane-orders').html(response.view);
-                initOrderForm();
-            } else {
-                errorMessage(response.message);
-            }
-            hide_loader();
-        },
-        error: function (xhr, status, error) {
-            hide_loader();
-            console.error("Error:", error);
-        }
-    });
-});
-
-function initOrderForm() {
-    const $list = $('#order_items_list');
-    const $addBtn = $('#btn_add_item');
-    const $totalEl = $('#order_total');
-    const $totalInput = $('#order_total_input');
-    const $form = $('#form_order_create');
-
-    function money(n) { n = Number(n || 0); return '$' + n.toFixed(2); }
-
-    function recalc() {
-        let total = 0;
-        $list.find('li.list-group-item[data-index]').each(function () {
-            const $li = $(this);
-            const qty = parseFloat($li.find('.js-qty').val()) || 0;
-            const price = parseFloat($li.find('.js-price').val()) || 0;
-            const sub = qty * price;
-            $li.find('.js-subtotal').val(money(sub));
-            total += sub;
-        });
-        $totalEl.text(money(total));
-        $totalInput.val(total.toFixed(2));
-    }
-
-    function bindItem($li) {
-        const $sel = $li.find('.js-product');
-        const $qty = $li.find('.js-qty');
-        const $price = $li.find('.js-price');
-        const $rmBtn = $li.find('.js-remove');
-
-        $sel.on('change', function () {
-            const $opt = $(this).find('option:selected');
-            const p = parseFloat($opt.data('price'));
-            if (!isNaN(p)) $price.val(p.toFixed(2));
-            if (!$qty.val() || Number($qty.val()) <= 0) $qty.val(1);
-            recalc();
-        });
-
-        $qty.on('input', recalc);
-        $price.on('input', recalc);
-
-        $rmBtn.on('click', function () {
-            if ($(this).is(':disabled')) return;
-            $li.remove();
-            recalc();
-            const $items = $list.find('li.list-group-item[data-index]');
-            if ($items.length === 1) {
-                $items.eq(0).find('.js-remove').prop('disabled', true);
-            }
-        });
-    }
-
-    // Inicial: primera línea
-    bindItem($list.find('li.list-group-item[data-index="0"]'));
-    recalc();
-
-    // Agregar nueva línea
-    $addBtn.on('click', function () {
-        const $tmpl = $list.find('li[data-template="true"]').first();
-        const $clone = $tmpl.clone(true, true);
-        const nextIndex = $list.find('li.list-group-item[data-index]').length;
-
-        $clone.removeClass('d-none')
-            .removeAttr('data-template')
-            .removeAttr('aria-hidden')
-            .attr('data-index', String(nextIndex));
-
-        // data-name -> name, reemplazando __i__ por nextIndex, y habilitar
-        $clone.find('[data-name]').each(function () {
-            const $el = $(this);
-            const n = $el.attr('data-name').replace('__i__', nextIndex);
-            $el.attr('name', n).prop('disabled', false);
-        });
-        // Habilitar botón quitar
-        $clone.find('.js-remove').prop('disabled', false);
-
-        $list.append($clone);
-        bindItem($clone);
-    });
-
-    // Submit crear orden (envía FormData por AJAX jQuery)
-    $form.on('submit', function (e) {
-        e.preventDefault();
-
-        const $items = $list.find('li.list-group-item[data-index]');
-        if ($items.length === 0) { Swal.fire({ icon: 'warning', title: 'Atención', text: 'Agrega al menos un producto.' }); return; }
-
-        // Validaciones básicas
-        let ok = true;
-        $items.each(function () {
-            const $li = $(this);
-            const selVal = $li.find('.js-product').val();
-            const qty = parseFloat($li.find('.js-qty').val());
-            const price = parseFloat($li.find('.js-price').val());
-            if (!selVal) { Swal.fire({ icon: 'warning', title: 'Atención', text: 'Selecciona un producto en cada línea.' }); ok = false; return false; }
-            if (!(qty > 0)) { Swal.fire({ icon: 'warning', title: 'Atención', text: 'Cantidad inválida.' }); ok = false; return false; }
-            if (!(price >= 0)) { Swal.fire({ icon: 'warning', title: 'Atención', text: 'Precio inválido.' }); ok = false; return false; }
-        });
-        if (!ok) return;
-
-        const formEl = this; // DOM nativo
-        const fd = new FormData(formEl);
-
-        //append user_request
-        fd.append('user_request', 'create_order');
-
-        $.ajax({
-            url: clients_controller,
-            method: 'POST',
-            data: fd,
-            processData: false, // importante para FormData
-            contentType: false, // importante para FormData
-            success: function () {
-                // Reset del form y dejar solo la primera línea limpia
-                formEl.reset();
-                $items.each(function (i) { if (i > 0) $(this).remove(); });
-
-                const $first = $list.find('li.list-group-item[data-index="0"]');
-                $first.find('.js-product').prop('selectedIndex', 0);
-                $first.find('.js-qty').val(1);
-                $first.find('.js-price').val('');
-                $first.find('.js-subtotal').val('$0.00');
-
-                recalc();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Orden creada',
-                    text: 'La orden se ha creado correctamente.',
-                });
-                // Aquí puedes refrescar el listado de órdenes si lo necesitas.
-                $('#tab-orders').trigger('click'); // Volver a órdenes para ver saldo actualizado
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo crear la orden' + (xhr.responseText ? (': ' + xhr.responseText) : '.'),
-                });
-            }
-        });
     });
 }
 
-$(document).on('click', '#tab-payments', function (e) {
+// Toggle visual de selección de producto
+$(document).on('change', '.sale-item-select', function () {
+    const $card = $(this).closest('.client-sale-item-card');
+    if (!$card.length) return;
+
+    if (this.checked) {
+        $card.addClass('selected');
+    } else {
+        $card.removeClass('selected');
+    }
+});
+
+// Click en card → toggle check (sin pelearse con inputs)
+$(document).on('click', '.client-sale-item-card', function (e) {
+    // Evitar conflicto si hicieron click directo en un input
+    if ($(e.target).is('input, label, .form-control')) return;
+
+    const $checkbox = $(this).find('.sale-item-select').first();
+    if (!$checkbox.length) return;
+
+    $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
+});
+
+// Evitar que cantidad se pase del máximo o se vaya a 0
+$(document).on('input change', '.sale-item-qty', function () {
+    const $input = $(this);
+    const $row = $input.closest('.sale-item-row');
+    const max = parseInt($row.data('max-qty'), 10) || 0;
+
+    let val = parseInt($input.val(), 10);
+
+    if (isNaN(val) || val < 1) {
+        val = 1;
+    }
+    if (max > 0 && val > max) {
+        val = max;
+    }
+
+    $input.val(val);
+});
+
+// Abrir modal de pago (desde card o desde perfil)
+$(document).on('click', '.clients-btn-add-payment, .client-profile-add-payment', function (e) {
+    e.preventDefault();
+
+    let customerId = $(this).data('customer-id');
+
+    // fallback por si algún día lo tomamos del modal
+    if (!customerId) {
+        const $modal = $('#client_profile_modal');
+        if ($modal.length) {
+            customerId = $modal.data('customer-id');
+        }
+    }
+
+    if (!customerId) {
+        console.warn('No se pudo determinar el customer_id para nuevo pago.');
+        return;
+    }
+
+    $.ajax({
+        url: clients_controller,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'fetch_new_payment_modal',
+            customer_id: customerId
+        },
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                const modalEl = document.getElementById('client_new_payment_modal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            } else {
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo abrir el modal de pago.' });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+        }
+    });
+});
+
+// Guardar pago con comprobante (FormData)
+$(document).on('submit', '#client_new_payment_form', function (e) {
+    e.preventDefault();
+
+    const customerId = parseInt($('#payment_customer_id').val(), 10);
+    const paymentDate = $('#payment_date').val();
+    const amountRaw = $('#payment_amount').val();
+    const method = $('#payment_method').val();
+    const notes = $('#payment_notes').val().trim();
+    const fileInput = $('#payment_receipt')[0];
+
+    const amount = parseFloat(amountRaw);
+
+    if (!customerId) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Cliente inválido.' });
+        return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Ingresa un monto de pago válido.' });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('user_request', 'create_client_payment');
+    formData.append('customer_id', customerId);
+    formData.append('payment_date', paymentDate);
+    formData.append('amount', amount);
+    formData.append('method', method);
+    formData.append('notes', notes);
+
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append('payment_receipt', fileInput.files[0]);
+    }
+
+    $.ajax({
+        url: clients_controller,
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function (resp) {
+            if (resp.status === 'success') {
+                const modalEl = document.getElementById('client_new_payment_modal');
+                if (modalEl) {
+                    const instance = bootstrap.Modal.getInstance(modalEl);
+                    if (instance) instance.hide();
+                }
+
+                // recargar perfil para ver saldo, pagos y movimientos actualizados
+                reloadClientProfile(customerId);
+            } else {
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo registrar el pago.' });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al registrar el pago.' });
+        }
+    });
+});
+
+// Ver detalle de pago
+$(document).on('click', '.client-payment-view', function (e) {
+    e.preventDefault();
+    const paymentId = $(this).data('payment-id');
+    if (!paymentId) return;
+
+    $.ajax({
+        url: clients_controller,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'fetch_payment_detail',
+            payment_id: paymentId
+        },
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                const modalEl = document.getElementById('client_payment_detail_modal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            } else {
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo cargar el detalle del pago.' });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+        }
+    });
+});
+
+// Estado actual de filtros
+const clientsFilters = {
+    status: 'all',      // all | active | inactive | debtor
+    period: 'this_week',// this_week | last_week | all
+    search: ''          // texto del input
+};
+
+function getWeekBoundaries() {
+    const now = new Date();
+    const current = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const day = current.getDay(); // 0 dom, 1 lun, ... 6 sáb
+
+    // Queremos lunes como inicio
+    const diffToMonday = (day === 0 ? -6 : 1 - day);
+
+    const mondayThisWeek = new Date(current);
+    mondayThisWeek.setDate(current.getDate() + diffToMonday);
+    mondayThisWeek.setHours(0, 0, 0, 0);
+
+    const mondayLastWeek = new Date(mondayThisWeek);
+    mondayLastWeek.setDate(mondayThisWeek.getDate() - 7);
+
+    const sundayLastWeek = new Date(mondayThisWeek);
+    sundayLastWeek.setDate(mondayThisWeek.getDate() - 1);
+    sundayLastWeek.setHours(23, 59, 59, 999);
+
+    return {
+        mondayThisWeek,
+        mondayLastWeek,
+        sundayLastWeek
+    };
+}
+
+function applyClientFilters() {
+    const { status, period, search } = clientsFilters;
+    const searchTerm = (search || '').toLowerCase().trim();
+
+    const { mondayThisWeek, mondayLastWeek, sundayLastWeek } = getWeekBoundaries();
+
+    let visibleCount = 0;
+    let visibleDebtors = 0;
+    let visibleClear = 0;
+    let visibleTotalBalance = 0;
+
+    $('#clients_grid .clients-card').each(function () {
+        const $card = $(this);
+
+        const cardStatus  = ($card.data('status') || '').toString();
+        const cardBalance = parseFloat($card.data('balance')) || 0;
+        const lastPayRaw  = ($card.data('last-payment-date') || '').toString();
+
+        let show = true;
+
+        // 1) Filtro por estado
+        if (status !== 'all') {
+            if (status === 'debtor') {
+                // "Con deuda" = balance > 0
+                if (!(cardBalance > 0)) {
+                    show = false;
+                }
+            } else {
+                if (cardStatus !== status) {
+                    show = false;
+                }
+            }
+        }
+
+        // 2) Filtro por periodo (según última fecha de pago)
+        if (show && period !== 'all') {
+            if (!lastPayRaw) {
+                // Sin pago -> no entra ni en esta semana ni en la pasada
+                show = false;
+            } else {
+                const parts = lastPayRaw.split('-'); // 'YYYY-MM-DD'
+                const d = new Date(
+                    parseInt(parts[0], 10),
+                    parseInt(parts[1], 10) - 1,
+                    parseInt(parts[2], 10)
+                );
+                d.setHours(12, 0, 0, 0); // evitar temas de zona extraños
+
+                if (period === 'this_week') {
+                    if (!(d >= mondayThisWeek)) {
+                        show = false;
+                    }
+                } else if (period === 'last_week') {
+                    if (!(d >= mondayLastWeek && d <= sundayLastWeek)) {
+                        show = false;
+                    }
+                }
+            }
+        }
+
+        // 3) Buscador (nombre / teléfono / email dentro del texto de la card)
+        if (show && searchTerm) {
+            const cardText = $card.text().toLowerCase();
+            if (!cardText.includes(searchTerm)) {
+                show = false;
+            }
+        }
+
+        // Mostrar / ocultar
+        if (show) {
+            $card.removeClass('d-none');
+            visibleCount++;
+            if (cardBalance > 0) {
+                visibleDebtors++;
+                visibleTotalBalance += cardBalance;
+            } else {
+                visibleClear++;
+            }
+        } else {
+            $card.addClass('d-none');
+        }
+    });
+
+    // Actualizar KPIs (si tienes esos IDs en la vista)
+    $('#kpi_total_clients').text(visibleCount);
+    $('#kpi_debtor_clients').text(visibleDebtors);
+    $('#kpi_clear_clients').text(visibleClear);
+    $('#kpi_total_balance').text(
+        '$' + visibleTotalBalance.toFixed(2)
+    );
+}
+
+// Click en las opciones del dropdown de estado
+$(document).on('click', '.dropdown-item[data-status]', function (e) {
+    e.preventDefault();
+    const status = $(this).data('status');
+
+    clientsFilters.status = status;
+
+    // Actualizar texto del botón
+    let label = 'Todos';
+    if (status === 'active') label = 'Activos';
+    else if (status === 'inactive') label = 'Inactivos';
+    else if (status === 'debtor') label = 'Con deuda';
+
+    $('#filterStatusDropdown').text('Estado: ' + label);
+
+    applyClientFilters();
+});
+
+// Click en "Esta semana / Semana pasada / Todo"
+$(document).on('click', '.period-filter', function () {
+    const $btn = $(this);
+    const period = $btn.data('period');
+
+    clientsFilters.period = period;
+
+    // Marcar activo visualmente
+    $('.period-filter').removeClass('active');
+    $btn.addClass('active');
+
+    applyClientFilters();
+});
+
+// Filtrar mientras escribe
+$(document).on('input', '#clients_search_input', function () {
+    clientsFilters.search = $(this).val();
+    applyClientFilters();
+});
+
+function initClientsModule() {
+    // Reset filtros al abrir módulo
+    clientsFilters.status = 'all';
+    clientsFilters.period = 'this_week';
+    clientsFilters.search = '';
+
+    $('#filterStatusDropdown').text('Estado: Todos');
+    $('.period-filter').removeClass('active');
+    $('.period-filter[data-period="this_week"]').addClass('active');
+    $('#clients_search_input').val('');
+
+    applyClientFilters();
+}
+
+
+
+// Reusar las acciones existentes
+$(document).on('click', '.client-action-view', function (e) {
+    e.preventDefault();
+    const id = $(this).data('customer-id');
+    if (!id) return;
+    // Llamas tu flujo existente de abrir perfil
+    $('.clients-btn-view[data-customer-id="'+id+'"]').trigger('click');
+});
+
+$(document).on('click', '.client-action-add-sale', function (e) {
+    e.preventDefault();
+    const id = $(this).data('customer-id');
+    if (!id) return;
+    $('.clients-btn-add-sale[data-customer-id="'+id+'"]').trigger('click');
+});
+
+$(document).on('click', '.client-action-add-payment', function (e) {
+    e.preventDefault();
+    const id = $(this).data('customer-id');
+    if (!id) return;
+    $('.clients-btn-add-payment[data-customer-id="'+id+'"]').trigger('click');
+});
+
+// Nuevo cliente (toolbar, FAB, empty state)
+$(document).on('click', '#btn_new_client, #clients_fab_new_client, #btn_empty_new_client', function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: clients_controller,
+        method: 'POST',
+        dataType: 'json',
+        data: { user_request: 'fetch_new_client_modal' },
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                const modalEl = document.getElementById('client_form_modal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            } else {
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo abrir el formulario de cliente.' });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+        }
+    });
+});
+
+// Editar cliente (desde card o desde perfil)
+$(document).on('click', '.client-action-edit, .client-profile-edit', function (e) {
     e.preventDefault();
     const customerId = $(this).data('customer-id');
     if (!customerId) return;
 
-    // Cargar pagos del cliente
     $.ajax({
         url: clients_controller,
         method: 'POST',
+        dataType: 'json',
         data: {
-            user_request: 'fetch_client_payments',
+            user_request: 'fetch_edit_client_modal',
             customer_id: customerId
         },
-        beforeSend: function () {
-            show_loader();
-        },
-        success: function (response) {
-            response = JSON.parse(response);
-            if (response.status === 'success') {
-                $('#pane-payments').html(response.view);
-                //initPaymentForm();
+        success: function (resp) {
+            if (resp.status === 'success') {
+                $('#modal_container').html(resp.view);
+                const modalEl = document.getElementById('client_form_modal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
             } else {
-                errorMessage(response.message);
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo abrir el editor de cliente.' });
             }
-            hide_loader();
         },
         error: function (xhr, status, error) {
-            hide_loader();
-            console.error("Error:", error);
+            console.error('AJAX error:', error);
         }
     });
 });
 
-$(document).on('submit', '#form_payment_general', function (e) {
+// Crear / actualizar cliente
+$(document).on('submit', '#client_form', function (e) {
     e.preventDefault();
 
-    const form = this;
-    const fd = new FormData(form); // incluye el file receipt si se eligió
+    const id     = $('#client_id').val();
+    const name   = $('#client_name').val().trim();
+    const phone  = $('#client_phone').val().trim();
+    const email  = $('#client_email').val().trim();
+    const status = $('#client_status').val();
 
-    //append user_request
-    fd.append('user_request', 'create_payment');
+    if (!name) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'El nombre del cliente es obligatorio.' });
+        return;
+    }
+
+    const isEdit = id !== '';
+
+    const payload = {
+        user_request: isEdit ? 'update_client' : 'create_client',
+        name,
+        phone,
+        email,
+        status
+    };
+
+    if (isEdit) {
+        payload.customer_id = parseInt(id, 10);
+    }
 
     $.ajax({
-        url: clients_controller,   // tu endpoint
+        url: clients_controller,
         method: 'POST',
-        data: fd,
-        processData: false,            // necesario para FormData
-        contentType: false,            // necesario para FormData
+        dataType: 'json',
+        data: payload,
         success: function (resp) {
-            // Limpia el form
-            form.reset();
-            Swal.fire({
-                icon: 'success',
-                title: 'Pago registrado',
-                text: 'El pago se ha registrado correctamente.',
-            });
-            // Aquí puedes refrescar “Pagos recientes” y las cifras de saldo/orden
-            // p.ej. disparar un evento: document.dispatchEvent(new CustomEvent('payments:changed'));
+            if (resp.status === 'success') {
+                const modalEl = document.getElementById('client_form_modal');
+                if (modalEl) {
+                    const instance = bootstrap.Modal.getInstance(modalEl);
+                    if (instance) instance.hide();
+                }
 
-            $('#tab-payments').trigger('click'); // Volver a órdenes para ver saldo actualizado
+                // Recargar módulo de clientes (para refrescar grid y KPIs)
+                loadClientsModule && loadClientsModule();
+
+                // Si estabas en el perfil del cliente editado, recárgalo
+                if (isEdit && typeof reloadClientProfile === 'function') {
+                    const cid = parseInt(id, 10);
+                    if (!isNaN(cid)) {
+                        reloadClientProfile(cid);
+                    }
+                }
+            } else {
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo guardar el cliente.' });
+            }
         },
-        error: function (xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo registrar el pago' + (xhr.responseText ? (': ' + xhr.responseText) : '.'),
-            });
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al guardar el cliente.' });
         }
     });
 });
 
-$(document).on('submit', '.js-pay-order-form', function (e) {
-    e.preventDefault();
-    const $form = $(this);
-    const fd = new FormData(this); // incluye receipt si se cargó
+function loadClientsModule() {
+    loadClients();
+}
 
-    const $btn = $form.find('button[type="submit"]');
-    $btn.prop('disabled', true).text('Guardando…');
-
-    //append user_request
-    fd.append('user_request', 'create_payment');
-
-    $.ajax({
-        url: clients_controller,   // mismo endpoint que el general
-        method: 'POST',
-        data: fd,
-        processData: false,
-        contentType: false
-    })
-        .done(function (resp) {
-            // Limpia solo campos editables (no ocultos)
-            $form.find('input[name="amount"]').val('');
-            $form.find('input[name="note"]').val('');
-            $form.find('input[type="file"][name="receipt"]').val('');
-            // Feedback mínimo
-            $btn.removeClass('btn-primary').addClass('btn-success').text('Registrado');
-            setTimeout(function () {
-                $btn.addClass('btn-primary').removeClass('btn-success').text('Registrar pago').prop('disabled', false);
-            }, 1200);
-
-            // Opcional: refrescar saldos/listas
-            // document.dispatchEvent(new CustomEvent('payments:changed', { detail: resp }));
-
-            $('#tab-orders').trigger('click'); // Volver a órdenes para ver saldo actualizado
-        })
-        .fail(function (xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo registrar el pago' + (xhr.responseText ? (': ' + xhr.responseText) : '.'),
-            });
-            $btn.prop('disabled', false).text('Registrar pago');
-        });
+$(document).on('hidden.bs.modal', '#client_form_modal, #client_new_payment_modal, #client_new_sale_modal, #client_payment_detail_modal', function () {
+    // Limpiar contenido del modal al cerrarlo
+    $('#modal_container').empty();
+    $('.modal-backdrop').remove();
 });
 
+// Evitar que el click en los 3 puntos dispare el "ver perfil"
+$(document).on('click', '.clients-card-menu, .clients-card-menu *', function (e) {
+    e.stopPropagation(); // no sube al .clients-btn-view
+});
 
+$(document).on('click', '.dropdown-menu', function (e) {
+    e.stopPropagation();
+});

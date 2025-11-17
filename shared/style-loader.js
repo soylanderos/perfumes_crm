@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		dynamic_styles.push("utilities/evo-calendar/css/evo-calendar.royal-navy.css");
 		dynamic_styles.push("utilities/styles/styles.css");
 		dynamic_styles.push("assets/css/admin.css");
+		dynamic_styles.push("assets/css/clients.css")
+		dynamic_styles.push("assets/css/orders.css");
 		dynamic_styles.push("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0");
+		dynamic_styles.push("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
 
 	}
 

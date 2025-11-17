@@ -9,46 +9,49 @@ if (!isset($_SESSION['id'])) {
 
 $session_user_id = $_SESSION["id"];
 $user_role = $_SESSION["role"];
-
-
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <link rel="icon" type="image/x-icon" href="assets/img/crm_icon.png">
-    <!-- ✅ Carga crítica para evitar que se vea desordenado -->
-    <link href="utilities/styles/styles.css" rel="stylesheet">
 
+    <!-- Estilos base -->
     <link href="utilities/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <!-- ⚙️ El resto lo carga dinámicamente -->
+    <link href="utilities/styles/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Carga dinámica extra -->
     <script src="shared/style-loader.js"></script>
 
     <!-- PWA -->
     <meta name="theme-color" content="#78ffd6">
     <meta name="MobileOptimized" content="width">
     <meta name="HandheldFriendly" content="true">
-    <meta name="theme-color" content="#78ffd6">
     <link rel="manifest" href="./manifest.json" />
 
     <title>CRM Pay</title>
 </head>
 
-<body data-page="index" data-user-role="<?= $user_role ?>">
-    <?php include 'shared/components/sidebar.php' ?>
+<body data-page="index" data-user-role="<?= htmlspecialchars($user_role) ?>">
 
-    <div class="main-container ms-md-5 ps-md-5 mt-5 pt-3 mt-md-0 pt-md-0" id="app-content">
+    <!-- Shell principal -->
+    <main class="app-shell">
+        <div class="main-container" id="app_content">
+            <!-- Aquí se inyectan dashboard, clientes, etc. vía AJAX -->
+        </div>
+    </main>
 
-    </div>
+    <!-- Barra de navegación flotante (antes estaba tu sidebar.php) -->
+    <?php include 'shared/components/floating-nav.php'; ?>
 
+    <!-- Modales -->
     <div id="modal_container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="shared/script-loader.js"></script>
-
-    <div id="modal-container"></div>
 </body>
-
 </html>
