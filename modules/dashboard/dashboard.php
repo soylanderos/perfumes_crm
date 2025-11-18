@@ -1,249 +1,167 @@
 <?php
-$payload = [
-	'labels' => $labels,
-	'sales' => array_map('floatval', $salesData),
-	'paid' => array_map('floatval', $paidData),
-	'by_status' => $by_status,
-	'aging' => $aging,
-	'top_customers' => $top_customers,
-	'top_debtors' => $top_debtors,
-	'top_products' => $top_products
-];
-$paidPct = ($kpi['total_sales'] > 0) ? ($kpi['total_paid'] / $kpi['total_sales'] * 100) : 0;
+// variables que vienen del controller
 
-
+/** @var array $summary */
+/** @var array $top_debtors */
+/** @var array $recent_activity */
+$total_clients        = (int)($summary['total_clients'] ?? 0);
+$clients_with_debt    = (int)($summary['clients_with_debt'] ?? 0);
+$clients_clear        = (int)($summary['clients_clear'] ?? 0);
+$total_receivable     = (float)($summary['total_receivable'] ?? 0);
+$new_clients_month    = (int)($summary['new_clients_this_month'] ?? 0);
+$sales_this_month     = (float)($summary['sales_this_month'] ?? 0);
+$payments_this_month  = (float)($summary['payments_this_month'] ?? 0);
+$net_change           = (float)($summary['net_change'] ?? 0);
 ?>
-<!-- Payload JSON para charts -->
-<script type="application/json" id="dashboard-data">
-	<?php echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>
-</script>
+<div class="container-fluid dashboard-page ">
 
-<style>
-	/* Modo compacto */
-	#dashboard_root .card-body {
-		padding: .75rem
-	}
-
-	#dashboard_root h6 {
-		margin-bottom: .5rem
-	}
-
-	#dashboard_root .kpi .fs-4 {
-		font-size: 1.25rem !important
-	}
-
-	#dashboard_root .kpi .small {
-		font-size: .8rem !important
-	}
-
-	/* alturas pequeñas para charts (Chart.js usa maintainAspectRatio=false) */
-	.chart-xs {
-		height: 120px
-	}
-
-	.chart-sm {
-		height: 150px
-	}
-
-	.chart-md {
-		height: 180px
-	}
-</style>
-
-<div id="dashboard_root" class="container py-4">
-
-	<!-- KPIs (más compactos) -->
-	<div class="row g-2 mb-2 mt-2">
-		<div class="col-6 col-lg-2">
-			<div class="card shadow-sm border-0 kpi">
-				<div class="card-body">
-					<div class="text-secondary small">Ventas</div>
-					<div class="fs-4 fw-semibold">$<?= number_format($kpi['total_sales'], 2) ?></div>
-				</div>
-			</div>
+	<!-- Header -->
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+		<div>
+			<h1 class="h3 mb-1 fw-semibold">Resumen general</h1>
+			<p class="text-muted mb-0">
+				Ve cómo van tus clientes, compras y cobros en este periodo.
+			</p>
 		</div>
-		<div class="col-6 col-lg-2">
-			<div class="card shadow-sm border-0 kpi">
-				<div class="card-body">
-					<div class="text-secondary small">Cobrado</div>
-					<div class="fs-4 fw-semibold">$<?= number_format($kpi['total_paid'], 2) ?></div>
-				</div>
-			</div>
-		</div>
-		<div class="col-6 col-lg-2">
-			<div class="card shadow-sm border-0 kpi">
-				<div class="card-body">
-					<div class="text-secondary small">Por cobrar</div>
-					<div class="fs-4 fw-semibold">$<?= number_format($kpi['total_due'], 2) ?></div>
-				</div>
-			</div>
-		</div>
-		<div class="col-6 col-lg-2">
-			<div class="card shadow-sm border-0 kpi">
-				<div class="card-body">
-					<div class="text-secondary small">% Pagado</div>
-					<div class="fs-4 fw-semibold"><?= number_format($paidPct, 1) ?>%</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-6 col-lg-2">
-			<div class="card shadow-sm border-0 kpi">
-				<div class="card-body">
-					<div class="text-secondary small">Órdenes</div>
-					<div class="fs-4 fw-semibold"><?= number_format($kpi['orders_count']) ?></div>
-				</div>
-			</div>
-		</div>
-		<div class="col-6 col-lg-2">
-			<div class="card shadow-sm border-0 kpi">
-				<div class="card-body">
-					<div class="text-secondary small">Ticket promedio</div>
-					<div class="fs-4 fw-semibold">$<?= number_format($kpi['avg_ticket'], 2) ?></div>
-				</div>
-			</div>
+		<div class="ms-auto d-flex flex-wrap align-items-center gap-2">
+		
 		</div>
 	</div>
 
-	<!-- Fila 1: 4 columnas (tops) -->
-	<div class="row g-2 mb-2">
-		<div class="col-12 col-lg-3">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Top clientes (ventas)</h6>
-					<canvas id="chart_top_customers" class="chart-xs"></canvas>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-3">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Top deudores</h6>
-					<canvas id="chart_top_debtors" class="chart-xs"></canvas>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-3">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Top productos (importe)</h6>
-					<canvas id="chart_top_products_total" class="chart-xs"></canvas>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-3">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Top productos (cantidad)</h6>
-					<canvas id="chart_top_products_qty" class="chart-xs"></canvas>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Fila 2: alertas compactas -->
-	<div class="row g-2 mb-2">
-		<div class="col-12 col-lg-6">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6 class="mb-2">Stock bajo</h6>
-					<?php if ($low_stock): ?>
-						<div class="table-responsive">
-							<table class="table table-sm align-middle mb-0">
-								<thead>
-									<tr>
-										<th>SKU</th>
-										<th>Producto</th>
-										<th class="text-end">Stock</th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ($low_stock as $it): ?>
-										<tr>
-											<td><?= htmlspecialchars($it['sku']) ?></td>
-											<td><?= htmlspecialchars($it['name']) ?></td>
-											<td class="text-end">
-												<span class="badge text-bg-<?= (int)$it['stock'] <= 0 ? 'danger' : ((int)$it['stock'] <= 3 ? 'warning' : 'secondary') ?>">
-													<?= (int)$it['stock'] ?>
-												</span>
-											</td>
-										</tr>
-									<?php endforeach; ?>
-								</tbody>
-							</table>
-						</div>
-					<?php else: ?>
-						<div class="text-secondary small">Sin alertas de stock.</div>
-					<?php endif; ?>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-12 col-lg-6">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6 class="mb-2">Vencimientos</h6>
-					<div class="row">
-						<div class="col-12 col-md-6">
-							<div class="small text-secondary mb-1">Próximos 7 días</div>
-							<ul class="list-group list-group-flush small">
-								<?php foreach ($due_soon as $o): ?>
-									<li class="list-group-item px-0 d-flex justify-content-between">
-										<span>#<?= (int)$o['id'] ?> · $<?= number_format($o['balance'], 2) ?></span>
-										<span class="text-secondary"><?= date('d/m', strtotime($o['due_date'])) ?></span>
-									</li>
-								<?php endforeach;
-								if (!$due_soon): ?>
-									<li class="list-group-item px-0 text-secondary">Nada por ahora</li>
-								<?php endif; ?>
-							</ul>
-						</div>
-						<div class="col-12 col-md-6">
-							<div class="small text-secondary mb-1">Vencidos</div>
-							<ul class="list-group list-group-flush small">
-								<?php foreach ($overdue as $o): ?>
-									<li class="list-group-item px-0 d-flex justify-content-between">
-										<span>#<?= (int)$o['id'] ?> · $<?= number_format($o['balance'], 2) ?></span>
-										<span class="badge text-bg-danger"><?= date('d/m', strtotime($o['due_date'])) ?></span>
-									</li>
-								<?php endforeach;
-								if (!$overdue): ?>
-									<li class="list-group-item px-0 text-secondary">Sin vencidos 🎉</li>
-								<?php endif; ?>
-							</ul>
+	<!-- Hero KPIs -->
+	<div class="row g-3 mb-3">
+		<div class="col-12 col-lg-5">
+			<div class="dash-hero-card">
+				<div class="d-flex justify-content-between align-items-start mb-2">
+					<div>
+						<div class="dash-hero-label">Saldo total por cobrar</div>
+						<div class="dash-hero-amount">
+							$<?= number_format($total_receivable, 2) ?>
 						</div>
 					</div>
+					<span class="dash-hero-pill">
+						<?= $clients_with_debt ?> clientes con deuda
+					</span>
+				</div>
+				<div class="d-flex flex-wrap gap-3 small text-white-70">
+					<span>Total clientes: <strong><?= $total_clients ?></strong></span>
+					<span>Al día: <strong><?= $clients_clear ?></strong></span>
+					<span>Nuevos este mes: <strong><?= $new_clients_month ?></strong></span>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-6 col-lg-3">
+			<div class="dash-kpi-card">
+				<div class="dash-kpi-label">Compras este mes</div>
+				<div class="dash-kpi-value">
+					$<?= number_format($sales_this_month, 2) ?>
+				</div>
+				<div class="dash-kpi-sub">Monto total registrado</div>
+			</div>
+		</div>
+
+		<div class="col-6 col-lg-3">
+			<div class="dash-kpi-card">
+				<div class="dash-kpi-label">Pagos este mes</div>
+				<div class="dash-kpi-value text-success">
+					$<?= number_format($payments_this_month, 2) ?>
+				</div>
+				<div class="dash-kpi-sub">
+					Neto cartera:
+					<span class="<?= $net_change >= 0 ? 'text-danger' : 'text-success' ?>">
+						<?= $net_change >= 0 ? '+' : '' ?>$<?= number_format($net_change, 2) ?>
+					</span>
 				</div>
 			</div>
 		</div>
 	</div>
 
-
-	<!-- Fila 3: 3 columnas -->
-	<div class="row g-2 mb-2">
-		<div class="col-12 col-lg-4">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Ventas vs Cobros</h6>
-					<canvas id="chart_sales_paid" class="chart-sm"></canvas>
+	<!-- Gráfica + Top deudores -->
+	<div class="row g-3 mb-3">
+		<div class="col-12 col-xl-7">
+			<div class="dash-card h-100">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<h2 class="h6 mb-0">Compras vs pagos</h2>
+					<span class="badge rounded-pill bg-light text-muted">Últimos 6 meses</span>
+				</div>
+				<div class="dash-chart-wrapper">
+					<canvas id="dashboard_kpi_chart"></canvas>
 				</div>
 			</div>
 		</div>
 
-		<div class="col-12 col-lg-4">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Estatus de órdenes</h6>
-					<canvas id="chart_status" class="chart-xs"></canvas>
+		<div class="col-12 col-xl-5">
+			<div class="dash-card h-100">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<h2 class="h6 mb-0">Top clientes con deuda</h2>
 				</div>
+				<?php if (!empty($top_debtors)): ?>
+					<ul class="list-unstyled mb-0 dash-list">
+						<?php foreach ($top_debtors as $c): ?>
+							<li class="dash-list-item">
+								<div>
+									<div class="fw-semibold small">
+										<?= htmlspecialchars($c['name']) ?>
+									</div>
+									<div class="small text-muted">
+										Cliente #<?= (int)$c['id'] ?>
+									</div>
+								</div>
+								<div class="fw-semibold small text-danger">
+									$<?= number_format($c['balance'], 2) ?>
+								</div>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				<?php else: ?>
+					<p class="small text-muted mb-0">
+						Ningún cliente tiene saldo pendiente. Nada mal 🔥
+					</p>
+				<?php endif; ?>
 			</div>
 		</div>
+	</div>
 
-		<div class="col-12 col-lg-4">
-			<div class="card shadow-sm border-0 h-100">
-				<div class="card-body">
-					<h6>Aging cartera</h6>
-					<canvas id="chart_aging" class="chart-xs"></canvas>
+	<!-- Actividad reciente -->
+	<div class="row g-3">
+		<div class="col-12">
+			<div class="dash-card">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<h2 class="h6 mb-0">Actividad reciente</h2>
 				</div>
+				<?php if (!empty($recent_activity)): ?>
+					<ul class="list-unstyled mb-0 dash-list">
+						<?php foreach ($recent_activity as $a):
+							$is_payment = $a['type'] === 'payment';
+							$sign  = $is_payment ? '+' : '-';
+							$color = $is_payment ? 'text-success' : 'text-danger';
+						?>
+							<li class="dash-list-item">
+								<div>
+									<div class="fw-semibold small">
+										<?= htmlspecialchars($a['customer_name']) ?>
+									</div>
+									<div class="small text-muted">
+										<?= date('d/m/Y H:i', strtotime($a['movement_date'])) ?>
+										&nbsp;&bull;&nbsp;
+										<?= $is_payment ? 'Pago' : 'Cargo' ?>
+										<?php if (!empty($a['notes'])): ?>
+											&nbsp;&bull;&nbsp;<?= htmlspecialchars($a['notes']) ?>
+										<?php endif; ?>
+									</div>
+								</div>
+								<div class="fw-semibold small <?= $color ?>">
+									<?= $sign ?>$<?= number_format($a['amount'], 2) ?>
+								</div>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				<?php else: ?>
+					<p class="small text-muted mb-0">
+						Aún no hay movimientos recientes.
+					</p>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>

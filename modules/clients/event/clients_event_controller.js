@@ -601,12 +601,12 @@ $(document).on('input', '#clients_search_input', function () {
 function initClientsModule() {
     // Reset filtros al abrir módulo
     clientsFilters.status = 'all';
-    clientsFilters.period = 'this_week';
+    clientsFilters.period = 'all';
     clientsFilters.search = '';
 
     $('#filterStatusDropdown').text('Estado: Todos');
     $('.period-filter').removeClass('active');
-    $('.period-filter[data-period="this_week"]').addClass('active');
+    $('.period-filter[data-period="all"]').addClass('active');
     $('#clients_search_input').val('');
 
     applyClientFilters();

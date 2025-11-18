@@ -112,9 +112,9 @@
                             <span class="badge rounded-pill orders-status-badge" id="orders_detail_status_badge">
                                 Estado
                             </span>
-                            <button class="btn btn-outline-secondary btn-sm rounded-pill" id="btn_orders_mark_closed">
+                            <!-- <button class="btn btn-outline-secondary btn-sm rounded-pill" id="btn_orders_mark_closed">
                                 <i class="bi bi-check2-circle me-1"></i> Marcar como cerrado
-                            </button>
+                            </button> -->
                         </div>
                     </div>
 
@@ -195,21 +195,22 @@
                     <!-- Info básica de la lista -->
                     <div class="mb-3">
                         <div class="row g-3">
-                            <div class="col-12 col-md-7">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label small mb-1">Nombre de la lista</label>
                                 <input type="text"
                                     class="form-control form-control-sm"
+                                    name="new_order_title"
                                     id="new_order_title"
                                     placeholder="Ej. Resurtido noviembre importados"
                                     required>
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-6">
                                 <label class="form-label small mb-1">Fecha del pedido</label>
                                 <input type="date"
                                     class="form-control form-control-sm"
                                     id="new_order_date">
                             </div>
-                            <div class="col-6 col-md-2">
+                            <div class="col-6 col-md-12">
                                 <label class="form-label small mb-1">Notas</label>
                                 <input type="text"
                                     class="form-control form-control-sm"
@@ -269,7 +270,7 @@
             <form id="add_order_item_form" autocomplete="off">
                 <input type="hidden" id="add_item_order_id">
 
-                <div class="modal-header border-0 pb-0 px-3 pt-3">
+                <div class="modal-header border-0 pb-0 px-3 pt-3 d-flex align-items-center gap-2 justify-content-between w-100">
                     <h5 class="mb-0 fw-semibold">
                         Agregar producto
                     </h5>
@@ -300,7 +301,7 @@
                                 value="1"
                                 required>
                         </div>
-                        <div class="col-6">
+                        <div class="col-6 small">
                             <label class="form-label small mb-1">Costo aprox (opcional)</label>
                             <input type="number"
                                 class="form-control form-control-sm"

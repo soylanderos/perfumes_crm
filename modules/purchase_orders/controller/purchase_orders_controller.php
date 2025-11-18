@@ -217,84 +217,84 @@ switch ($user_request) {
         }
         break;
 
-        case 'toggle_order_item_acquired':
-    try {
-        $item_id     = filter_input(INPUT_POST, 'order_item_id', FILTER_VALIDATE_INT);
-        $is_acquired = filter_input(INPUT_POST, 'is_acquired', FILTER_VALIDATE_INT);
-        $order_id    = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT);
+    case 'toggle_order_item_acquired':
+        try {
+            $item_id     = filter_input(INPUT_POST, 'order_item_id', FILTER_VALIDATE_INT);
+            $is_acquired = filter_input(INPUT_POST, 'is_acquired', FILTER_VALIDATE_INT);
+            $order_id    = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT);
 
-        if (!$item_id || $is_acquired === null || !$order_id) {
-            throw new Exception('Datos inválidos para actualizar el item.');
+            if (!$item_id || $is_acquired === null || !$order_id) {
+                throw new Exception('Datos inválidos para actualizar el item.');
+            }
+
+            $bool_acquired = $is_acquired == 1;
+
+            update_order_item_acquired($db, $item_id, $bool_acquired);
+            $new_status = recalc_purchase_order_status($db, $order_id);
+
+            // map de classes para actualizar badge
+            $status_label = [
+                'open'    => 'Abierto',
+                'partial' => 'En uso',
+                'closed'  => 'Cerrado',
+            ][$new_status] ?? 'Abierto';
+
+            $status_class = [
+                'open'    => 'orders-badge-open',
+                'partial' => 'orders-badge-partial',
+                'closed'  => 'orders-badge-closed',
+            ][$new_status] ?? 'orders-badge-open';
+
+            echo json_encode([
+                'status'        => 'success',
+                'order_status'  => $new_status,
+                'status_label'  => $status_label,
+                'status_class'  => $status_class,
+            ]);
+        } catch (Throwable $e) {
+            error_log('Error toggle_order_item_acquired: ' . $e->getMessage());
+            $message = $development_mode ? $e->getMessage() : $user_message;
+
+            echo json_encode([
+                'status'  => 'error',
+                'message' => $message,
+            ]);
         }
-
-        $bool_acquired = $is_acquired == 1;
-
-        update_order_item_acquired($db, $item_id, $bool_acquired);
-        $new_status = recalc_purchase_order_status($db, $order_id);
-
-        // map de classes para actualizar badge
-        $status_label = [
-            'open'    => 'Abierto',
-            'partial' => 'En uso',
-            'closed'  => 'Cerrado',
-        ][$new_status] ?? 'Abierto';
-
-        $status_class = [
-            'open'    => 'orders-badge-open',
-            'partial' => 'orders-badge-partial',
-            'closed'  => 'orders-badge-closed',
-        ][$new_status] ?? 'orders-badge-open';
-
-        echo json_encode([
-            'status'        => 'success',
-            'order_status'  => $new_status,
-            'status_label'  => $status_label,
-            'status_class'  => $status_class,
-        ]);
-    } catch (Throwable $e) {
-        error_log('Error toggle_order_item_acquired: ' . $e->getMessage());
-        $message = $development_mode ? $e->getMessage() : $user_message;
-
-        echo json_encode([
-            'status'  => 'error',
-            'message' => $message,
-        ]);
-    }
-    break;
+        break;
 
     case 'add_order_items':
-    try {
-        $order_id = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT);
-        $items_json = filter_input(INPUT_POST, 'items');
-        $items = json_decode($items_json, true);
+        try {
+            $order_id = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT);
+            $items_json = filter_input(INPUT_POST, 'items');
+            $items = json_decode($items_json, true);
 
-        if (!$order_id) {
-            throw new Exception('ID de pedido inválido.');
+            if (!$order_id) {
+                throw new Exception('ID de pedido inválido.');
+            }
+            if (!is_array($items)) {
+                throw new Exception('Formato de productos inválido.');
+            }
+
+            add_items_to_purchase_order($db, $order_id, $items);
+            // recalcula status por si venían marcados como adquiridos luego (por ahora no)
+            $new_status = recalc_purchase_order_status($db, $order_id);
+
+            echo json_encode([
+                'status'       => 'success',
+                'message'      => 'Productos agregados correctamente.',
+                'order_status' => $new_status,
+            ]);
+        } catch (Throwable $e) {
+            error_log('Error add_order_items: ' . $e->getMessage());
+            $message = $development_mode ? $e->getMessage() : $user_message;
+
+            echo json_encode([
+                'status'  => 'error',
+                'message' => $message,
+            ]);
         }
-        if (!is_array($items)) {
-            throw new Exception('Formato de productos inválido.');
-        }
+        break;
 
-        add_items_to_purchase_order($db, $order_id, $items);
-        // recalcula status por si venían marcados como adquiridos luego (por ahora no)
-        $new_status = recalc_purchase_order_status($db, $order_id);
-
-        echo json_encode([
-            'status'       => 'success',
-            'message'      => 'Productos agregados correctamente.',
-            'order_status' => $new_status,
-        ]);
-
-    } catch (Throwable $e) {
-        error_log('Error add_order_items: ' . $e->getMessage());
-        $message = $development_mode ? $e->getMessage() : $user_message;
-
-        echo json_encode([
-            'status'  => 'error',
-            'message' => $message,
-        ]);
-    }
-    break;
 
 
 

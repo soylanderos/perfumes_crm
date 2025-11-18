@@ -123,7 +123,7 @@ function renderNewOrderItemRow() {
         <div class="col-6">
             <label class="form-label small mb-1">Producto</label>
             <input type="text" class="form-control form-control-sm new-order-item-name"
-                   placeholder="Nombre del perfume">
+                   placeholder="Nombre del producto">
         </div>
         <div class="col-3">
             <label class="form-label small mb-1">Cantidad</label>
@@ -214,6 +214,69 @@ $(document).on('submit', '#add_order_item_form', function (e) {
         error: function (xhr, status, error) {
             console.error('AJAX error:', error);
             Swal.fire({ icon: 'error', title: 'Error', text: 'Error al agregar el producto.'});
+        }
+    });
+});
+
+$(document).on('submit', '#new_purchase_order_form', function (e) {
+    e.preventDefault();
+    let title = $('#new_order_title').val().trim();
+    let order_date = $('#new_order_date').val().trim();
+    if (!title) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'El nombre de la lista es obligatorio.'});
+        return;
+    }
+    const notes = $('#new_order_notes').val().trim();
+
+    // Recolectar items
+    const items = [];
+    $('.new-order-item-row').each(function () {
+        const $row = $(this);
+        const name = $row.find('.new-order-item-name').val().trim();
+        const qty = parseInt($row.find('.new-order-item-qty').val(), 10) || 0;
+        const costRaw = $row.find('.new-order-item-cost').val().trim();
+        if (name && qty > 0) {
+            items.push({
+                product_name: name,
+                quantity: qty,
+                unit_cost: costRaw !== '' ? parseFloat(costRaw) : null
+            });
+        }
+
+    });
+
+    if (items.length === 0) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Agrega al menos un producto con nombre y cantidad.'});
+        return;
+    }
+
+    $.ajax({
+        url: orders_controller,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            user_request: 'create_purchase_order',
+            title: title,
+            order_date: order_date,
+            notes: notes,
+            items: JSON.stringify(items)
+        },
+        success: function (resp) {
+            if (resp.status === 'success') {
+                const modalEl = document.getElementById('orders_new_list_modal');
+                if (modalEl) {
+                    const instance = bootstrap.Modal.getInstance(modalEl);
+                    if (instance) instance.hide();
+                }
+                loadOrdersModule();
+            } else {
+                console.error(resp.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message || 'No se pudo crear la lista de pedidos.'});
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al crear la lista de pedidos.'});
         }
     });
 });

@@ -1,0 +1,111 @@
+
+
+/* Hero card */
+.dash-hero-card {
+    border-radius: 20px;
+    padding: 1.2rem 1.4rem;
+    background: radial-gradient(circle at 0% 0%, #38bdf8, #6366f1 45%, #1d4ed8 100%);
+    color: #ffffff;
+    box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.40),
+        0 0 0 1px rgba(129, 140, 248, 0.45);
+}
+
+.dash-hero-label {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.dash-hero-amount {
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(15, 23, 42, 0.55);
+}
+
+.dash-hero-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.3);
+    font-size: 0.75rem;
+}
+
+.text-white-70 {
+    color: rgba(241, 245, 249, 0.85) !important;
+}
+
+/* KPIs secundarios */
+.dash-kpi-card {
+    border-radius: 18px;
+    padding: 0.9rem 1.1rem;
+    background: #ffffff;
+    box-shadow:
+        0 14px 35px rgba(15, 23, 42, 0.08),
+        0 0 0 1px rgba(148, 163, 184, 0.25);
+}
+
+.dash-kpi-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.dash-kpi-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.dash-kpi-sub {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* Cards generales */
+.dash-card {
+    border-radius: 18px;
+    padding: 0.9rem 1.1rem;
+    background: #ffffff;
+    box-shadow:
+        0 14px 35px rgba(15, 23, 42, 0.08),
+        0 0 0 1px rgba(148, 163, 184, 0.20);
+}
+
+/* Gráfica */
+.dash-chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 260px;
+}
+
+/* Listas */
+.dash-list {
+    margin: 0;
+}
+
+.dash-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    font-size: 0.85rem;
+}
+
+.dash-list-item:last-child {
+    border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .dashboard-page {
+        padding-bottom: 5rem;
+    }
+
+    .dash-hero-card {
+        border-radius: 16px;
+    }
+
+    .dash-chart-wrapper {
+        height: 220px;
+    }
+}

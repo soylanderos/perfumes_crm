@@ -30,8 +30,6 @@ $last_sale_date_full = $last_sale_row['sale_date']       ?? null;
 $last_payment_amount = $last_payment_row['amount']       ?? null;
 $last_payment_method = $last_payment_row['method']       ?? null;
 $last_payment_date_full = $last_payment_row['payment_date'] ?? null;
-?>
-
 
 $balance_class = $balance > 0 ? 'text-danger' : 'text-success';
 ?>

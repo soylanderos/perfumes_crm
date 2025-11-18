@@ -6,13 +6,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// Login solo usa sweetalert2 extra
 	if (page === "login") {
-		dynamic_styles.push("utilities/sweetalert2/sweetalert2.min.css");
+		dynamic_styles.push("utilities/sweetalert2/sweetalert2.css");
 	} else {
 		dynamic_styles.push("utilities/JqueryUI/jquery-ui.min.css");
-		dynamic_styles.push("utilities/sweetalert2/sweetalert2.min.css");
+		dynamic_styles.push("utilities/sweetalert2/sweetalert2.css");
 		dynamic_styles.push("utilities/evo-calendar/css/evo-calendar.css");
 		dynamic_styles.push("utilities/evo-calendar/css/evo-calendar.royal-navy.css");
 		dynamic_styles.push("utilities/styles/styles.css");
+		dynamic_styles.push("assets/css/dashboard.css");
 		dynamic_styles.push("assets/css/admin.css");
 		dynamic_styles.push("assets/css/clients.css")
 		dynamic_styles.push("assets/css/orders.css");

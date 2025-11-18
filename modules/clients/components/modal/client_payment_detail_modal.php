@@ -10,7 +10,7 @@ $ext          = $receipt ? strtolower(pathinfo($receipt, PATHINFO_EXTENSION)) : 
 <div class="modal fade" id="client_payment_detail_modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md modal-fullscreen-sm-down">
         <div class="modal-content border-0 rounded-4 client-payment-detail-modal-content">
-            <div class="modal-header border-0 px-3 px-md-4 pt-3 pt-md-4">
+            <div class="modal-header border-0 px-3 px-md-4 pt-3 pt-md-4 d-flex align-items-center gap-2 justify-content-between w-100">
                 <h5 class="mb-0 fw-semibold">
                     Detalle del pago #<?= $payment_id ?>
                 </h5>
@@ -50,12 +50,7 @@ $ext          = $receipt ? strtolower(pathinfo($receipt, PATHINFO_EXTENSION)) : 
                 <?php if ($receipt): ?>
                     <div class="mt-3">
                         <div class="small text-muted mb-1">Comprobante de pago</div>
-                        <div class="mb-2">
-                            <a href="<?= htmlspecialchars($receipt) ?>" target="_blank" class="small">
-                                <i class="bi bi-box-arrow-up-right me-1"></i>
-                                Abrir comprobante en nueva pestaña
-                            </a>
-                        </div>
+                        
 
                         <?php if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)): ?>
                             <div class="client-payment-receipt-preview mt-2">

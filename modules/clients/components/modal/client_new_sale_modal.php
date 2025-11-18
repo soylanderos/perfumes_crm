@@ -24,14 +24,14 @@
                     <!-- Datos de la compra -->
                     <div class="mb-3">
                         <div class="row g-3">
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-12">
                                 <label class="form-label small mb-1">Fecha de la compra</label>
                                 <input type="date"
                                     class="form-control form-control-sm"
                                     id="sale_date"
                                     value="<?= date('Y-m-d') ?>">
                             </div>
-                            <div class="col-6 col-md-9">
+                            <div class="col-6 col-md-12">
                                 <label class="form-label small mb-1">Notas</label>
                                 <input type="text"
                                     class="form-control form-control-sm"

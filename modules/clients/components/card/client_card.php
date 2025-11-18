@@ -133,10 +133,10 @@
         </div>
 
         <div class="d-flex gap-2">
-            <button class="btn btn-primary btn-xs rounded-pill px-3 clients-btn-add-sale"
-                data-customer-id="<?= htmlspecialchars($customer_id) ?>">
+            <!-- <button class="btn btn-primary btn-xs rounded-pill px-3 clients-btn-add-sale"
+                data-customer-id="">
                 Nueva compra
-            </button>
+            </button> -->
         </div>
     </div>
 
